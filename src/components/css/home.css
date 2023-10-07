@@ -1,0 +1,32 @@
+
+.product-card {
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin-bottom: 20px;
+    text-align: center;
+    width: 300px;
+  }
+  
+  .product-card img {
+    width: 100%;
+    max-height: 200px;
+    object-fit: contain; /* Use 'contain' to resize the image while maintaining aspect ratio */
+    border: 1px solid #ddd; /* Add a border to the image */
+    border-radius: 5px; /* Add border radius for a more rounded look */
+  }
+  
+  .product-card h3 {
+    margin-top: 10px;
+  }
+  .spNew{
+    margin-top: 10px;
+    text-align: center;
+  }
+
+  .product_image{
+    width: 100%;
+    max-height: 500px;
+    object-fit: contain; /* Use 'contain' to resize the image while maintaining aspect ratio */
+    border: 1px solid #ddd; /* Add a border to the image */
+    border-radius: 5px; /* Add border radius for a more rounded look */
+  }
