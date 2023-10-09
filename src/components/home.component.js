@@ -73,10 +73,8 @@ const Home = () => {
 
   return (
     <div className="container">
-      {staffContent && (<h1>Bạn đang đăng nhập bằng tài khoản Staff mời sang trang quản trị</h1>)}
-      {adminContent && (<h1>Bạn đang đăng nhập bằng tài khoản Admin mời sang trang quản trị</h1>)}
-
-      {currentUser && (
+    
+      
         <div>
           <section className="hero">
             <Container>
@@ -149,7 +147,6 @@ const Home = () => {
 
 
         </div>
-      )}
     </div>
   );
 };
