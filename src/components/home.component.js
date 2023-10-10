@@ -11,11 +11,11 @@ const Home = () => {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [showAlert, setShowAlert] = useState(false);
 
-  useEffect(() => {
-    const user = AuthService.getCurrentUser();
-    getProductList();
+  // useEffect(() => {
+  //   const user = AuthService.getCurrentUser();
+  //   getProductList();
     
-  }, []);
+  // }, []);
   const handleProductClick = (product) => {
     setSelectedProduct(product);
   };
@@ -24,15 +24,15 @@ const Home = () => {
     setSelectedProduct(null);
   };
 
-  const getProductList = () => {
-    UserService.getProduct()
-      .then(res => {
-        setProducts(res.data.data);
-      })
-      .catch(err => {
-        console.error('Error fetching products:', err);
-      })
-  }
+  // const getProductList = () => {
+  //   UserService.getProduct()
+  //     .then(res => {
+  //       setProducts(res.data.data);
+  //     })
+  //     .catch(err => {
+  //       console.error('Error fetching products:', err);
+  //     })
+  // }
 
 
 
@@ -91,8 +91,8 @@ const Home = () => {
                 <p>Size: {selectedProduct?.size}</p>
                 <p>Tồn kho: {selectedProduct?.quantity}</p>
                 {/* Add more product details as needed */}
-                <Button id="button" variant="info" onClick={() => { addToCart(selectedProduct); }}>              <BsFillCartFill className="custom-cart-icon" />
-                  Thêm vào giỏ hàng</Button>
+                {/* <Button id="button" variant="info" onClick={() => { addToCart(selectedProduct); }}>              <BsFillCartFill className="custom-cart-icon" />
+                  Thêm vào giỏ hàng</Button> */}
 
               </Modal.Body>
               <Modal.Footer>
