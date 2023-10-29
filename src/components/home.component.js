@@ -6,16 +6,18 @@ import "../components/css/home.css";
 import { BsFillCartFill } from "react-icons/bs";
 import AlertMessage from "./common/message";
 import Card from "@mui/material/Card";
-import CardActions from "@mui/material/CardActions";
-import CardContent from "@mui/material/CardContent";
-import CardMedia from "@mui/material/CardMedia";
-import Typography from "@mui/material/Typography";
+import {CardActions,CardContent,CardMedia,Typography} from "@mui/material";
 import productService from "../services/product.service";
 import { Grid } from "@mui/material";
 const Home = () => {
   const [products, setProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [showAlert, setShowAlert] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const productsPerPage = 10;
+  const indexOfLastProduct = currentPage * productsPerPage;
+  const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
+  const currentProducts = products.slice(indexOfFirstProduct, indexOfLastProduct);
 
   useEffect(() => {
     productService
@@ -83,9 +85,9 @@ const Home = () => {
           </Row>
         </section>
         <Grid container spacing={6}>
-          {products.map((product) => (
+          {currentProducts.map((product) => (
             <Grid item xs={12} sm={6} md={4} key={product.id}>
-              <Card sx={{ maxWidth: 445, marginTop: "20px",marginBottom:"20px" }}>
+              <Card sx={{ maxWidth: 445, marginTop: "20px", marginBottom: "20px" }}>
                 <CardMedia
                   sx={{ height: 340 }}
                   image={product.images.url}
@@ -100,8 +102,7 @@ const Home = () => {
                   </Typography>
                 </CardContent>
                 <CardActions>
-                <button type="button" class="btn btn-outline-danger">Mua ngay</button>
-                <button type="button" class="btn btn-outline-warning">Thêm vào giỏ hàng</button>
+                  <button type="button" className="btn btn-outline-warning">Thêm vào giỏ hàng</button>
                 </CardActions>
               </Card>
             </Grid>
