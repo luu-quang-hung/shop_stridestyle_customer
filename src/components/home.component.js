@@ -12,18 +12,17 @@ import { Grid } from "@mui/material";
 const Home = () => {
   const [products, setProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
-  const [showAlert, setShowAlert] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
-  const productsPerPage = 10;
-  const indexOfLastProduct = currentPage * productsPerPage;
-  const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
-  const currentProducts = products.slice(indexOfFirstProduct, indexOfLastProduct);
 
   useEffect(() => {
+    const requestData = {
+      page: 0,
+      size: 15
+    };
+
     productService
-      .getProduct()
+      .getProduct(requestData)
       .then((response) => {
-        const data = response.data; // Truy cập thuộc tính "data" từ phản hồi API
+        const data = response.data.content; // Truy cập thuộc tính "data" từ phản hồi API
         // Kiểm tra xem data có phải là mảng không
         if (Array.isArray(data)) {
           setProducts(data);
@@ -43,16 +42,6 @@ const Home = () => {
   const handleCloseModal = () => {
     setSelectedProduct(null);
   };
-
-  // const getProductList = () => {
-  //   UserService.getProduct()
-  //     .then(res => {
-  //       setProducts(res.data.data);
-  //     })
-  //     .catch(err => {
-  //       console.error('Error fetching products:', err);
-  //     })
-  // }
 
   return (
     <div className="container">
@@ -84,13 +73,13 @@ const Home = () => {
             </Carousel>
           </Row>
         </section>
-        <Grid container spacing={6}>
-          {currentProducts.map((product) => (
-            <Grid item xs={12} sm={6} md={4} key={product.id}>
+        <Grid container spacing={4}>
+          {products.map((product) => (
+            <Grid item xs={12} sm={6} md={3} key={product.id}>
               <Card sx={{ maxWidth: 445, marginTop: "20px", marginBottom: "20px" }}>
                 <CardMedia
-                  sx={{ height: 340 }}
-                  image={product.images.url}
+                  component="img" // Sử dụng component="img" để hiển thị hình ảnh
+                  height="340"
                   title={product.nameProduct}
                 />
                 <CardContent>
