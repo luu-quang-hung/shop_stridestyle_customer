@@ -5,11 +5,14 @@ import AuthService from "../services/auth.service";
 import "../components/css/home.css"
 import { BsFillCartFill } from "react-icons/bs";
 import AlertMessage from "./common/message";
+import productService from "../services/product.service";
 const Home = () => {
- 
+ 0
   const [products, setProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [showAlert, setShowAlert] = useState(false);
+  
+  
 
   // useEffect(() => {
   //   const user = AuthService.getCurrentUser();
