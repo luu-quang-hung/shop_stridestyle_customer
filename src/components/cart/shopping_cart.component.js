@@ -24,76 +24,7 @@ const ShoppingCart = () => {
   return (
     <div style={{ display: "flex" }}>
       {/* Bảng giỏ hàng sẽ hiển thị bên phải */}
-      <div style={{ flex: 1, padding: "20px" }}>
-        <h2>Địa chỉ giao hàng</h2>
-        <form>
-          <div className="form-group">
-            <label htmlFor="fullName">Họ và tên</label>
-            <input
-              type="text"
-              className="form-control"
-              id="fullName"
-              placeholder="Nhập họ và tên"
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="address">Địa chỉ</label>
-            <input
-              type="text"
-              className="form-control"
-              id="address"
-              placeholder="Nhập địa chỉ"
-            />
-          </div>
-          <div className="form-row">
-            <div className="form-group col-md-6">
-              <label htmlFor="city">Thành phố</label>
-              <input
-                type="text"
-                className="form-control"
-                id="city"
-                placeholder="Nhập thành phố"
-              />
-            </div>
-            <div className="form-group col-md-6">
-              <label htmlFor="zipCode">Mã bưu điện</label>
-              <input
-                type="text"
-                className="form-control"
-                id="zipCode"
-                placeholder="Nhập mã bưu điện"
-              />
-            </div>
-          </div>
-          <div className="form-group">
-            <label htmlFor="phone">Số điện thoại</label>
-            <input
-              type="tel"
-              className="form-control"
-              id="phone"
-              placeholder="Nhập số điện thoại"
-            />
-          </div>
-          <div className="form-group">
-            <label htmlFor="email">Email</label>
-            <input
-              type="email"
-              className="form-control"
-              id="email"
-              placeholder="Nhập địa chỉ email"
-            />
-          </div>
-
-          <button style={{
-            marginLeft: "550px",
-            height: "60px"
-          }} type="submit" className="btn btn-primary">
-            Hoàn tất đặt hàng
-          </button>
-        </form>
-      </div>
-
+    
       {/* Form điền thông tin nhận hàng sẽ hiển thị bên trái */}
       <div style={{ flex: 1, padding: "20px" }}>
         <h2>Giỏ hàng</h2>

@@ -1,116 +1,103 @@
 import React, { Component, useState, useEffect } from "react";
 import Carousel from 'react-bootstrap/Carousel';
-import { Container, Row, Col, Button, Modal } from 'react-bootstrap';
-import AuthService from "../services/auth.service";
+import { Container, Row, Col, Button, Modal, Card } from 'react-bootstrap';
 import "../components/css/home.css"
 import { BsFillCartFill } from "react-icons/bs";
 import AlertMessage from "./common/message";
 import productService from "../services/product.service";
+import { CButton, CCard, CCardBody, CCol } from "@coreui/react";
+import { useNavigate } from "react-router-dom";
+import banner1 from "../image/1.png"
+import banner2 from "../image/2.png"
+import banner3 from "../image/3.png"
+
 const Home = () => {
- 0
-  const [products, setProducts] = useState([]);
+  const navigate = new useNavigate();
+  const [productInfo, setProductInfo] = useState([]);
+
+  const [productSearch, setProductSearch] = useState({
+    page: 0,
+    size: 12
+  });
+
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [showAlert, setShowAlert] = useState(false);
-  
-  
 
-  // useEffect(() => {
-  //   const user = AuthService.getCurrentUser();
-  //   getProductList();
-    
-  // }, []);
-  const handleProductClick = (product) => {
-    setSelectedProduct(product);
-  };
+  useEffect(() => {
+    getProductList();
 
-  const handleCloseModal = () => {
-    setSelectedProduct(null);
-  };
+  }, []);
 
-  // const getProductList = () => {
-  //   UserService.getProduct()
-  //     .then(res => {
-  //       setProducts(res.data.data);
-  //     })
-  //     .catch(err => {
-  //       console.error('Error fetching products:', err);
-  //     })
-  // }
+  const getProductList = () => {
+    productService.getProduct(productSearch)
+      .then(res => {
+        setProductInfo(res.data.content);
+        console.log(res.data.content);
+      })
+      .catch(err => {
+        console.error('Error fetching products:', err);
+      })
+  }
 
-
-
+  const cardProductClick = (productId) => {
+    navigate(`/product-detail/${productId}`);
+  }
 
   return (
     <div className="container">
+      <div  style={{marginTop:"72px"}}>
+        <Row className="justify-content-center">
+          <Carousel className="w-100">
+            <Carousel.Item>
+              <img className="d-block w-100" style={{height:"531px"}} src={banner1} alt="Slide 1" />
+            </Carousel.Item>
+            <Carousel.Item>
+              <img className="d-block w-100" style={{height:"531px"}} src={banner2} alt="Slide 2" />
+            </Carousel.Item>
+            <Carousel.Item>
+              <img className="d-block w-100" style={{height:"531px"}} src={banner3} alt="Slide 3" />
+            </Carousel.Item>
+          </Carousel>
+        </Row>
         <div>
-          <section className="hero">
-              <Row className="justify-content-center">
-                <Carousel className="w-100">
-                  <Carousel.Item>
-                    <img className="d-block w-100" src="https://i.imgur.com/4PP7wHy.jpg" alt="Slide 1" />
-                  </Carousel.Item>
-                  <Carousel.Item>
-                    <img className="d-block w-100" src="https://i.imgur.com/avpwAJP.jpg" alt="Slide 2" />
-                  </Carousel.Item>
-                  <Carousel.Item>
-                    <img className="d-block w-100" src="https://i.imgur.com/fxfPITL.jpg" alt="Slide 3" />
-                  </Carousel.Item>
-                </Carousel>
+          <CCard>
+            <CCardBody>
+              <h1 className="spNew">NEW ARRIVALS</h1>
+              <Row>
+                {productInfo.map((product, index) => (
+                  <Col md={3} key={index}>
+                    <Card style={{ width: '18rem' }} >
+                      <Card.Img variant="top" className="card-img" src={product.image} />
+                      <hr color="brown" noshade="noshade" />
+                      <Card.Body style={{textAlign:"center"}} onClick={() => cardProductClick(product.id)}>
+                        <Card.Title>{product.nameProduct}</Card.Title>
+                        <Card.Text>
+                          {product.description}
+                        </Card.Text>
+                        <Card.Title>{product.price} đ</Card.Title>
+                      </Card.Body>
+                      <CCol>
+
+                        <CButton style={{ backgroundColor: "black", border: "none", marginRight: "1%" }}>
+                          Mua Ngay
+                        </CButton>
+
+                        <CButton style={{ backgroundColor: "#c4996b", border: "none" }}>
+                          Giỏ Hàng
+                        </CButton>
+                      </CCol>
+                    </Card>
+                  </Col>
+                ))}
               </Row>
-          </section>
-          <section>
-            <h1 className="spNew">Sản phẩm mới</h1>
-            <section className="features">
-              <Container>
-                <Row>
-                  {products.map((product) => (
-                    <Col md={3} key={product.idProduct}>
-                      <div className="product-card" onClick={() => handleProductClick(product)}>
-                        <img src={product.image} alt={product.name} />
-                        <h5>{product.name}|{product.color}</h5>
-                        <p>{product.price} ₫</p>
-                      </div>
-                    </Col>
-                  ))}
-                </Row>
-              </Container>
-            </section>
-
-            {/* Modal */}
-            <Modal show={!!selectedProduct} >
-
-              <Modal.Header >
-                <Modal.Title>{selectedProduct?.name}</Modal.Title>
-              </Modal.Header>
-              <Modal.Body>
-                {showAlert && (
-                  <AlertMessage
-                    message={`Thêm sản phẩm  vào giỏ hàng thành công`}
-                    duration={2} // Thời gian tồn tại thông báo (số giây)
-                  />
-                )}
-                <img className="product_image" src={selectedProduct?.image} alt={selectedProduct?.name} />
-                <p>{selectedProduct?.price} ₫</p>
-                <p>Size: {selectedProduct?.size}</p>
-                <p>Tồn kho: {selectedProduct?.quantity}</p>
-                {/* Add more product details as needed */}
-                {/* <Button id="button" variant="info" onClick={() => { addToCart(selectedProduct); }}>              <BsFillCartFill className="custom-cart-icon" />
-                  Thêm vào giỏ hàng</Button> */}
-
-              </Modal.Body>
-              <Modal.Footer>
-                <Button variant="secondary" onClick={handleCloseModal}>
-                  Close
-                </Button>
-
-              </Modal.Footer>
-            </Modal>
-
-          </section>
-
-
-
+            </CCardBody>
+          </CCard>
         </div>
+
+
+
+
+      </div>
     </div>
   );
 };
