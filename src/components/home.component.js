@@ -25,14 +25,12 @@ const Home = () => {
 
   useEffect(() => {
     getProductList();
-
   }, []);
 
   const getProductList = () => {
     productService.getProduct(productSearch)
       .then(res => {
         setProductInfo(res.data.content);
-        console.log(res.data.content);
       })
       .catch(err => {
         console.error('Error fetching products:', err);
@@ -45,7 +43,7 @@ const Home = () => {
 
   return (
     <div className="container">
-      <div  style={{marginTop:"72px"}}>
+      <div>
         <Row className="justify-content-center">
           <Carousel className="w-100">
             <Carousel.Item>
@@ -76,16 +74,6 @@ const Home = () => {
                         </Card.Text>
                         <Card.Title>{product.price} đ</Card.Title>
                       </Card.Body>
-                      <CCol>
-
-                        <CButton style={{ backgroundColor: "black", border: "none", marginRight: "1%" }}>
-                          Mua Ngay
-                        </CButton>
-
-                        <CButton style={{ backgroundColor: "#c4996b", border: "none" }}>
-                          Giỏ Hàng
-                        </CButton>
-                      </CCol>
                     </Card>
                   </Col>
                 ))}

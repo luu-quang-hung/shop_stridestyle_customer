@@ -5,10 +5,40 @@ label {
 
 .container{
   max-width: 100%;
+  
 }
+
+.container_body{
+  margin-top: 34px;
+}
+
+
 .card-container.card {
   max-width: 550px !important;
   padding: 40px 40px;
+}
+
+
+/* cart icon */
+.custom-cart-icon {
+  position: relative;
+  display: inline-block;
+}
+
+.custom-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  width: 15px;
+  height: 15px;
+  background-color: red;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-size: 10px;
+  font-weight: bold;
 }
 
 html {
@@ -25,6 +55,10 @@ html {
   max-height: 1000000px;
   margin: 0;
   padding: 0;
+}
+
+*{
+  font-family: 'Times New Roman', Times, serif;;
 }
 
 body {

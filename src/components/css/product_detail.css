@@ -1,0 +1,47 @@
+.horizontal-row {
+    display: flex;
+    flex-direction: row;
+  }
+  
+  .size-item {
+    border: 1px solid #ccc; /* Màu và kiểu viền tùy chọn */
+    padding: 10px; /* Khoảng cách giữa các ô trong hàng */
+    margin-right: 5px; /* Khoảng cách giữa các ô */
+    cursor: pointer; /* Hiển thị icon con trỏ khi di chuột vào ô */
+  }
+  
+  .size-item:last-child {
+    margin-right: 0; /* Loại bỏ khoảng cách bên phải của ô cuối cùng trong hàng */
+  }
+  
+  .size-item.selected {
+    background-color: #f0f0f0; /* Màu nền khi ô được chọn */
+  }
+  
+  .size-item:hover {
+    background-color: #f0f0f0; /* Màu nền khi di chuột vào ô */
+  }
+
+  .horizontal-row {
+    display: flex;
+    flex-direction: row;
+  }
+  
+  .property-item {
+    border: 1px solid #ccc; /* Màu và kiểu viền tùy chọn */
+    padding: 10px; /* Khoảng cách giữa các ô trong hàng */
+    margin-right: 5px; /* Khoảng cách giữa các ô */
+    cursor: pointer; /* Hiển thị icon con trỏ khi di chuột vào ô */
+  }
+  
+  .property-item:last-child {
+    margin-right: 0; /* Loại bỏ khoảng cách bên phải của ô cuối cùng trong hàng */
+  }
+  
+  .property-item.selected {
+    background-color: #f0f0f0; /* Màu nền khi ô được chọn */
+  }
+  
+  .property-item:hover {
+    background-color: #f0f0f0; /* Màu nền khi di chuột vào ô */
+  }

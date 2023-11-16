@@ -14,6 +14,7 @@ import Profile from "./components/login/profile.component";
 import Product from "./components/product/product.component";
 import ShoppingCart from "./components/cart/shopping_cart.component";
 import ProductDetail from "./components/product/ProductDetailComponent";
+import OrderCompoment from "./components/order/OrderDetailCompoment";
 import '../node_modules/bootstrap/dist/css/bootstrap.min.css';
 import { BsFillCartFill, BsPersonCircle, BsFacebook, BsTwitter, BsTelegram, BsInstagram } from "react-icons/bs";
 // import AuthVerify from "./common/auth-verify";
@@ -21,6 +22,7 @@ import { BsFillCartFill, BsPersonCircle, BsFacebook, BsTwitter, BsTelegram, BsIn
 const App = () => {
   const [currentUser, setCurrentUser] = useState(undefined);
   const customer = JSON.parse(localStorage.getItem('user'));
+  const [cartItem, setCartItem] = useState([]);
 
   useEffect(() => {
     const user = AuthService.getCurrentUser();
@@ -31,8 +33,22 @@ const App = () => {
     const logoutListener = () => {
       logOut();
     };
+    const handleStorageChange = (event) => {
+      if (event.key === 'cartItem') {
+        const updatedCartItem = JSON.parse(event.newValue) || [];
+        setCartItem(updatedCartItem);
+      }
+    };
+    const storedCartItem = JSON.parse(localStorage.getItem('cartItem')) || [];
+    setCartItem(storedCartItem);
 
+    window.addEventListener('storage', handleStorageChange);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
   }, []);
+
 
   const logOut = () => {
     AuthService.logout();
@@ -41,64 +57,69 @@ const App = () => {
 
   return (
     <div >
-    <div id="header">
-    <Navbar bg="light" expand="lg">
-        <Container>
-          <Navbar.Brand href="/">Logo ne</Navbar.Brand>
-          <Navbar.Toggle aria-controls="basic-navbar-nav" />
-          <Navbar.Collapse id="basic-navbar-nav">
-            <Nav className="me-auto">
-            <Nav.Link href="#home">Home</Nav.Link>
-            <Nav.Link href="#about">About</Nav.Link>
-            <Nav.Link href="#services">Services</Nav.Link>
-            <Nav.Link href="#works">Works</Nav.Link>
-            <Nav.Link href="#teams">Teams</Nav.Link>
-            <Nav.Link href="#testimonials">Testimonials</Nav.Link>
-            <Nav.Link href="#pricing">Pricing</Nav.Link>
-            <Nav.Link href="#blog">Blog</Nav.Link>
-            <Nav.Link href="#contact">Contact</Nav.Link>
+      <div id="header">
+        <Navbar bg="light" expand="lg">
+          <Container>
+            <Navbar.Brand href="/">Logo ne</Navbar.Brand>
+            <Navbar.Toggle aria-controls="basic-navbar-nav" />
+            <Navbar.Collapse id="basic-navbar-nav">
+              <Nav className="me-auto">
+                <Nav.Link href="#home">Home</Nav.Link>
+                <Nav.Link href="#about">About</Nav.Link>
+                <Nav.Link href="#services">Services</Nav.Link>
+                <Nav.Link href="#works">Works</Nav.Link>
+                <Nav.Link href="#teams">Teams</Nav.Link>
+                <Nav.Link href="#testimonials">Testimonials</Nav.Link>
+                <Nav.Link href="#pricing">Pricing</Nav.Link>
+                <Nav.Link href="#blog">Blog</Nav.Link>
+                <Nav.Link href="#contact">Contact</Nav.Link>
 
-              {currentUser ? (
-                <div className="navbar-nav ml-auto">
-                  <li className="nav-item">
-                    <Link to={"/profile"} className="nav-link">
-                      <BsPersonCircle className="custom-cart-icon" /> {customer.username}
-                    </Link>
-                  </li>
-                  <li className="nav-item">
-                    <a href="/shopping-cart" className="nav-link">
-                      <BsFillCartFill className="custom-cart-icon" /> </a>
-                  </li>
-                  <li className="nav-item">
-                    <a href="/login" className="nav-link" onClick={logOut}>
-                      <i className="fas fa-sign-out-alt"></i> Đăng xuất
-                    </a>
-                  </li>
+                {currentUser ? (
+                  <div className="navbar-nav ml-auto">
 
-                </div>
-              ) : (
-                <div className="navbar-nav ml-auto">
-                  <li className="nav-item">
-                    <Link to={"/login"} className="nav-link">
-                      <i className="fas fa-sign-in-alt"></i> Login
-                    </Link>
-                  </li>
+                    <li className="nav-item">
 
-                  <li className="nav-item">
-                    <Link to={"/register"} className="nav-link">
-                      <i className="fas fa-user-plus"></i> Sign Up
-                    </Link>
-                  </li>
-                </div>
-              )}
-            </Nav>
+                      <Link to={"/profile"} className="nav-link">
+                        <BsPersonCircle className="custom-cart-icon" /> {customer.username}
+                      </Link>
+                    </li>
 
-          </Navbar.Collapse>
-        </Container>
-      </Navbar>
-    </div>
+                    <li className="nav-item">
+                      <a href="/login" className="nav-link" onClick={logOut}>
+                        <i className="fas fa-sign-out-alt"></i> Đăng xuất
+                      </a>
+                    </li>
+                    <li className="nav-item">
+                      <a href="/shopping-cart" className="nav-link">
+                        <BsFillCartFill className="custom-cart-icon" />
+                        <div className="custom-badge">{cartItem.length}</div>
 
-      <div className="container">
+                      </a>
+                    </li>
+                  </div>
+                ) : (
+                  <div className="navbar-nav ml-auto">
+                    <li className="nav-item">
+                      <Link to={"/login"} className="nav-link">
+                        <i className="fas fa-sign-in-alt"></i> Login
+                      </Link>
+                    </li>
+
+                    <li className="nav-item">
+                      <Link to={"/register"} className="nav-link">
+                        <i className="fas fa-user-plus"></i> Sign Up
+                      </Link>
+                    </li>
+                  </div>
+                )}
+              </Nav>
+
+            </Navbar.Collapse>
+          </Container>
+        </Navbar>
+      </div>
+
+      <div className="container_body">
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
@@ -107,6 +128,8 @@ const App = () => {
           <Route path="/product" element={<Product />} />
           <Route path="/shopping-cart" element={<ShoppingCart />} />
           <Route path="/product-detail/:productId" element={<ProductDetail />} />
+          <Route path="/checkout" element={<OrderCompoment />} />
+
         </Routes>
       </div>
 

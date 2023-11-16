@@ -11,9 +11,6 @@ class ProductService {
     return axios.get(API_URL + 'find-by-id/'+ idProduct, { headers: authHeader() });
   }
 
-
-
- 
 }
 
 export default new ProductService();

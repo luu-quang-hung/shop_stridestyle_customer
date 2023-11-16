@@ -1,76 +1,93 @@
 import React, { Component, useState, useEffect } from "react";
 import "../css/shopping_cart.css"
+import { CButton, CCard, CCardBody, CCardFooter, CCardHeader, CCardText, CCardTitle, CCol, CContainer, CFormInput, CFormLabel, CImage, CListGroup, CListGroupItem, CRow, CTable, CTableBody, CTableDataCell, CTableHeaderCell, CTableRow } from "@coreui/react";
+import { AiFillDelete } from "react-icons/ai";
+import { useNavigate } from "react-router-dom";
 const ShoppingCart = () => {
+  const navigate = useNavigate();
 
-  const [cartItems, setCartItems] = useState([]);
+  const [cartItem, setCartItem] = useState([]);
+  const totalAmount = cartItem.reduce((total, item) => total + (item.quantity * item.price), 0);
 
   useEffect(() => {
-    const storedCartItems = JSON.parse(sessionStorage.getItem('cartItems') || '[]');
-    setCartItems(storedCartItems);
+    const storedCartItem = JSON.parse(localStorage.getItem('cartItem')) || [];
+    setCartItem(storedCartItem);
   }, []);
 
-  const handleRemoveItem = (itemId) => {
-    const updatedCart = cartItems.filter((item) => item.idProduct !== itemId);
-    setCartItems(updatedCart);
-    sessionStorage.setItem('cartItems', JSON.stringify(updatedCart));
-    resetCart();
-  };
 
-  const resetCart = () => {
-    setCartItems([]); // Reset lại giỏ hàng t                                                                 rong state
-    sessionStorage.removeItem('cartItems'); // Xóa dữ liệu trong sessionStorage
-  };
-
-  return (
-    <div style={{ display: "flex" }}>
-      {/* Bảng giỏ hàng sẽ hiển thị bên phải */}
+  const deleteProductCard = (indexToRemove) => {
+    const updatedCartItem = [...cartItem];
+    updatedCartItem.splice(indexToRemove, 1);
     
-      {/* Form điền thông tin nhận hàng sẽ hiển thị bên trái */}
-      <div style={{ flex: 1, padding: "20px" }}>
-        <h2>Giỏ hàng</h2>
-        {cartItems.length === 0 ? (
-          <p>Giỏ hàng rỗng.</p>
-        ) : (
-          <table className="table">
-            <thead>
-              <tr>
-                <th scope="col">Sản phẩm</th>
-                <th scope="col">Ảnh</th>
-                <th scope="col">Đơn giá</th>
-                <th scope="col">Số lượng</th>
-                <th scope="col">Tổng tiền</th>
-                <th scope="col"></th>
-              </tr>
-            </thead>
-            <tbody>
-              {cartItems.map((item) => (
-                <tr className="cart_table" key={item.idProduct}>
-                  <td scope="row" style={{ width: "100px" }}>{item.name}</td>
-                  <td scope="row" style={{ width: "100px" }}>
-                    <img src={item.image} alt={item.name} />
-                  </td>
-                  <td scope="row">{item.price} ₫</td>
-                  <td scope="row">{item.quantity}</td>
-                  <td scope="row">{item.price * item.quantity} ₫</td>
-                  <td scope="row">
-                    <button onClick={() => handleRemoveItem(item.idProduct)}>
-                      Xóa
-                    </button>
-                  </td>
+    setCartItem(updatedCartItem);
+    localStorage.setItem('cartItem', JSON.stringify(updatedCartItem));
+  };
 
-                </tr>
-
+  const checkOutCart = () => {
+    navigate(`/checkout`);
+  }
+  return (
+    <CContainer>
+      <CRow>
+        <CCol md={8}>
+          <CCard>
+            <CCardBody>
+              <CRow>
+                <CCol md={7} className="mb-3">Sản phẩm</CCol>
+                <CCol md={2}>Số lượng</CCol>
+                <CCol md={2}>Đơn giá</CCol>
+                <CCol md={1}></CCol>
+              </CRow>
+              {cartItem.map((cart, index) => (
+                <>
+                  <hr color="brown" noshade="noshade" />
+                  <CRow key={index}>
+                    <CCol md={2} className="mb-3"><CImage src={cart.image} /></CCol>
+                    <CCol md={5}>
+                      <CRow>
+                        <CCol md={12}>
+                          {cart.productName}
+                        </CCol>
+                        <CCol md={12}>
+                          {cart.property}
+                        </CCol>
+                        <CCol md={12}>
+                          {cart.size}
+                        </CCol>
+                      </CRow>
+                    </CCol>
+                    <CCol md={2}><CFormInput value={cart.quantity} type="number" /></CCol>
+                    <CCol md={2}><CFormLabel style={{ color: "red" }}>{cart.price}</CFormLabel></CCol>
+                    <CCol md={1}><AiFillDelete onClick={() => deleteProductCard(index)} /></CCol>
+                  </CRow></>
               ))}
-            </tbody>
-          </table>
-        )}
-        <div>
+            </CCardBody>
+          </CCard>
+        </CCol>
+        <CCol md={4}>
+          <CCard >
+            <CCardHeader style={{ fontSize: "21px" }}>Thông tin đơn hàng</CCardHeader>
+            <CCardBody>
+              <CCardTitle>Tổng tiền: <span style={{ color: "red", fontSize: "21px" }}>{totalAmount} đ </span></CCardTitle>
+              <CCardText>Phí vận chuyển sẽ được tính ở trang thanh toán.</CCardText>
+            </CCardBody>
+            <CCardFooter className="text-center">
+              <CRow>
+                <CCol md={12} className="mb-3">
+                  <CButton style={{ width: "327px" }} color="dark" onClick={checkOutCart}>Thanh toán ngay</CButton>
+                </CCol>
+                <CCol md={12}>
+                  <CButton color="light" style={{ width: "327px" }} >Tiếp tục mua hàng</CButton>
+                </CCol>
+              </CRow>
 
-        </div>
-      </div>
-
-    </div>
+            </CCardFooter>
+          </CCard>
+        </CCol>
+      </CRow>
+    </CContainer>
   );
 
 }
 export default ShoppingCart
+
