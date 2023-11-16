@@ -15,6 +15,14 @@ const OrderCompoment = () => {
     const totalAmount = cartItem.reduce((total, item) => total + (item.quantity * item.price), 0);
     const totalSl = cartItem.reduce((total, item) => total + (item.quantity), 0);
     const [shipping, setShipping] = useState(null)
+    const [sendForm, setSendForm] = useState({
+        name: '',
+        email: '',
+        telephone: '',
+        address: '',
+        shippingMethod: 'GHN', // Giả sử giao hàng nhanh là phương thức mặc định
+        paymentMethod: 'COD', // Giả sử thanh toán khi giao hàng là phương thức mặc định
+    });
     useEffect(() => {
         const storedCartItem = JSON.parse(localStorage.getItem('cartItem')) || [];
         setCartItem(storedCartItem);
@@ -29,6 +37,18 @@ const OrderCompoment = () => {
                 console.log(err);
             })
     }
+
+    const handleInputChange = (e) => {
+        const { id, value } = e.target;
+        setSendForm((prevData) => ({
+            ...prevData,
+            [id]: value,
+        }));
+    };
+
+    const handleSubmit = () => {
+        console.log(ward,district,provinces);
+    };
 
     const handleProvinceChange = (event) => {
         const provincesId = event.target.value;
@@ -67,10 +87,10 @@ const OrderCompoment = () => {
             from_district_id: 3440,
             to_district_id: parseInt(toDistrict),
             to_ward_code: wardId,
-            height: totalSl * 5,
-            length: totalSl * 5,
+            height: totalSl * 3,
+            length: totalSl * 3,
             weight: totalSl * 1,
-            width: totalSl * 5
+            width: totalSl * 3
         }
         OrderDetailSerivce.getShipping(jsonShipping)
             .then(res => {
@@ -93,6 +113,8 @@ const OrderCompoment = () => {
                                 type="text"
                                 id="name"
                                 placeholder="Họ và Tên"
+                                value={sendForm.name}
+                                onChange={handleInputChange}
                             />
                         </CCol>
                         <CCol md={8} className="mb-3">
@@ -100,6 +122,8 @@ const OrderCompoment = () => {
                                 type="email"
                                 id="email"
                                 placeholder="Email"
+                                value={sendForm.email}
+                                onChange={handleInputChange}
                             />
                         </CCol>
                         <CCol md={4}>
@@ -107,6 +131,8 @@ const OrderCompoment = () => {
                                 type="text"
                                 id="telephone"
                                 placeholder="Số điện thoại"
+                                value={sendForm.telephone}
+                                onChange={handleInputChange}
                             />
                         </CCol>
                         <CCol md={12} className="mb-3">
@@ -114,6 +140,8 @@ const OrderCompoment = () => {
                                 type="text"
                                 id="address"
                                 placeholder="Địa chỉ"
+                                value={sendForm.address}
+                                onChange={handleInputChange}
                             />
                         </CCol>
                         <CCol md={4} className="mb-3">
@@ -158,7 +186,7 @@ const OrderCompoment = () => {
                     </CForm>
                     <h4>Phương thức vận chuyển</h4>
                     <CCol md={12} className="mb-3" >
-                        <CFormCheck className="radioPayment" type="radio" name="radioVc" value="option1" defaultChecked />
+                        <CFormCheck className="radioPayment" type="radio" name="radioVc" value="GHN" defaultChecked />
                         <div className="cardPayment">
                             <CCardImage style={{ width: "55px" }} src="https://play-lh.googleusercontent.com/oPEbg7Lgj98vzT9qmq9sOiY-t6IR_frAY-ON7KHOBMqQpt_qxDQmom8lCWlNM1cJIIZ2" />
                             <span>Giao hàng nhanh toàn quốc()</span>
@@ -167,7 +195,7 @@ const OrderCompoment = () => {
                     </CCol>
                     <h4>Phương thức thanh toán</h4>
                     <CCol md={12} className="mb-3" >
-                        <CFormCheck className="radioPayment" type="radio" name="exampleRadios" value="option1" defaultChecked />
+                        <CFormCheck className="radioPayment" type="radio" name="payment" value="COD" defaultChecked />
                         <div className="cardPayment">
                             <CCardImage style={{ width: "55px" }} src="https://hstatic.net/0/0/global/design/seller/image/payment/cod.svg?v=6" />
                             <span>Thanh toán khi giao hàng (COD)</span>
@@ -175,14 +203,14 @@ const OrderCompoment = () => {
 
                     </CCol>
                     <CCol md={12} className="mb-3">
-                        <CFormCheck className="radioPayment" type="radio" name="exampleRadios" value="option3" />
+                        <CFormCheck className="radioPayment" type="radio" name="payment" value="VNPAY" />
                         <div className="cardPayment">
                             <CCardImage style={{ width: "55px" }} src="https://vnpay.vn/s1/statics.vnpay.vn/2023/9/06ncktiwd6dc1694418196384.png" />
                             <span>Cổng VNPAY</span>
                         </div>
                     </CCol>
                     <CCol md={12} className=" mb-3">
-                        <CFormCheck className="radioPayment" type="radio" name="exampleRadios" value="option2" />
+                        <CFormCheck className="radioPayment" type="radio" name="payment" value="BANK" />
                         <div className="cardPayment">
                             <CCardImage style={{ width: "55px" }} src="https://hstatic.net/0/0/global/design/seller/image/payment/other.svg?v=6" />
                             <span>Chuyển khoản qua ngân hàng</span>
@@ -190,10 +218,10 @@ const OrderCompoment = () => {
                     </CCol>
                     <CRow>
                         <CCol md={6} >
-                            <CButton type="button"  color="info" variant="outline" style={{  border: "none" }}>Giỏ hàng</CButton>
+                            <CButton type="button" color="info" variant="outline" style={{ border: "none" }}>Giỏ hàng</CButton>
                         </CCol>
                         <CCol md={6} style={{ textAlign: "end" }}>
-                            <CButton type="button" style={{ backgroundColor: "#c4996b", border: "none" }}>Hoàn tất đơn hàng</CButton>
+                            <CButton type="button" style={{ backgroundColor: "#c4996b", border: "none" }} onClick={handleSubmit}>Hoàn tất đơn hàng</CButton>
                         </CCol>
                     </CRow>
                 </CCol>
