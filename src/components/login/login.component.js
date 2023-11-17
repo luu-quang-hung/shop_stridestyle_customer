@@ -57,7 +57,7 @@ class Login extends Component {
     if (this.checkBtn.context._errors.length === 0) {
       AuthService.login(this.state.username, this.state.password).then(
         () => {
-          this.props.router.navigate("/home");
+          this.props.router.navigate("/");
           window.location.reload();
         },
         error => {
@@ -83,7 +83,7 @@ class Login extends Component {
 
   render() {
     return (
-      <div className="col-md-12">
+      <div className="col-md-12"  style={{ marginTop: "110px", marginBottom: "185px" }}>
         <div className="card card-container">
           <img
             src="//ssl.gstatic.com/accounts/ui/avatar_2x.png"
