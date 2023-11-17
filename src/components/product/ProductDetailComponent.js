@@ -5,8 +5,9 @@ import { useParams } from 'react-router-dom';
 import "../css/product_detail.css"
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import CurrencyFormatter from "../common/CurrencyFormatter";
 const ProductDetail = () => {
-
+  const formatter = new CurrencyFormatter();
   const { productId } = useParams();
 
   const [product, setProduct] = useState([]);
@@ -17,7 +18,8 @@ const ProductDetail = () => {
   });
   useEffect(() => {
     getProducId();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    window.scroll(0,0)
+
   }, []);
 
   const getProducId = () => {
@@ -28,6 +30,7 @@ const ProductDetail = () => {
       .catch(err => {
         console.log(err);
       })
+
   };
 
   const handleInputChange = (event) => {
@@ -108,7 +111,11 @@ const ProductDetail = () => {
               <h2>{product.nameProduct}</h2>
             </CCol>
             <CCol md={12} >
-              <CFormLabel style={{ color: "#c4996b", fontSize: "20px", fontWeight: "bold" }}>Giá: {product.price}</CFormLabel>
+              <CFormLabel style={{ color: "#c4996b", fontSize: "20px", fontWeight: "bold" }}>Giá: {formatter.formatVND(product.price)}</CFormLabel>
+            </CCol>
+            <CCol md={12} >
+              <CFormLabel>{product.description}
+              </CFormLabel>
             </CCol>
             <CCol md={12}>
               <CFormLabel>Tình trạng:<span style={{ color: "#c4996b", fontSize: "20px", fontWeight: "bold" }}>Còn hàng</span> </CFormLabel>

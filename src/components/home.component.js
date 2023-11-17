@@ -5,26 +5,27 @@ import "../components/css/home.css"
 import { BsFillCartFill } from "react-icons/bs";
 import AlertMessage from "./common/message";
 import productService from "../services/product.service";
-import { CButton, CCard, CCardBody, CCol } from "@coreui/react";
+import { CButton, CCard, CCardBody, CCol, CFormLabel } from "@coreui/react";
 import { useNavigate } from "react-router-dom";
 import banner1 from "../image/1.png"
 import banner2 from "../image/2.png"
 import banner3 from "../image/3.png"
-
+import CurrencyFormatter from "./common/CurrencyFormatter";
 const Home = () => {
   const navigate = new useNavigate();
   const [productInfo, setProductInfo] = useState([]);
+  const formatter = new CurrencyFormatter();
+
 
   const [productSearch, setProductSearch] = useState({
     page: 0,
     size: 12
   });
 
-  const [selectedProduct, setSelectedProduct] = useState(null);
-  const [showAlert, setShowAlert] = useState(false);
 
   useEffect(() => {
     getProductList();
+    
   }, []);
 
   const getProductList = () => {
@@ -43,49 +44,41 @@ const Home = () => {
 
   return (
     <div className="container">
-      <div>
         <Row className="justify-content-center">
           <Carousel className="w-100">
             <Carousel.Item>
-              <img className="d-block w-100" style={{height:"531px"}} src={banner1} alt="Slide 1" />
+              <img className="d-block w-100" style={{height:"700px"}} src={banner1} alt="Slide 1" />
             </Carousel.Item>
             <Carousel.Item>
-              <img className="d-block w-100" style={{height:"531px"}} src={banner2} alt="Slide 2" />
+              <img className="d-block w-100" style={{height:"700px"}} src={banner2} alt="Slide 2" />
             </Carousel.Item>
             <Carousel.Item>
-              <img className="d-block w-100" style={{height:"531px"}} src={banner3} alt="Slide 3" />
+              <img className="d-block w-100" style={{height:"700px"}} src={banner3} alt="Slide 3" />
             </Carousel.Item>
           </Carousel>
-        </Row>
         <div>
-          <CCard>
-            <CCardBody>
-              <h1 className="spNew">NEW ARRIVALS</h1>
+          {/* <CCard style={{backgroundColor:"white"}}>
+            <CCardBody> */}
+              <CFormLabel className="spNew">Sản phẩm mới</CFormLabel>
               <Row>
                 {productInfo.map((product, index) => (
-                  <Col md={3} key={index}>
-                    <Card style={{ width: '18rem' }} >
+                  <Col md={3} key={index} onClick={() => cardProductClick(product.id)} >
+                    <Card style={{ width: '100%',height:"86%" }} >
                       <Card.Img variant="top" className="card-img" src={product.image} />
+                      <Card.Body>
                       <hr color="brown" noshade="noshade" />
-                      <Card.Body style={{textAlign:"center"}} onClick={() => cardProductClick(product.id)}>
-                        <Card.Title>{product.nameProduct}</Card.Title>
-                        <Card.Text>
-                          {product.description}
-                        </Card.Text>
-                        <Card.Title>{product.price} đ</Card.Title>
+                        <Card.Title style={{fontSize:"22px"}}>{product.nameProduct}</Card.Title>
+                        
+                        <Card.Title style={{color:"red"}}>{formatter.formatVND(product.price)}</Card.Title>
                       </Card.Body>
                     </Card>
                   </Col>
                 ))}
               </Row>
-            </CCardBody>
-          </CCard>
+            {/* </CCardBody>
+          </CCard> */}
         </div>
-
-
-
-
-      </div>
+        </Row>
     </div>
   );
 };

@@ -15,8 +15,12 @@ import Product from "./components/product/product.component";
 import ShoppingCart from "./components/cart/shopping_cart.component";
 import ProductDetail from "./components/product/ProductDetailComponent";
 import OrderCompoment from "./components/order/OrderDetailCompoment";
+import OrderCustomerComponent from "./components/order-customer/OrderCustomerComponent";
+import ContactComponent from "./components/contact/ContactComponent";
+import IntroduceComponent from "./components/introduce/IntroduceComponent";
 import '../node_modules/bootstrap/dist/css/bootstrap.min.css';
 import { BsFillCartFill, BsPersonCircle, BsFacebook, BsTwitter, BsTelegram, BsInstagram } from "react-icons/bs";
+import { Dropdown } from "react-bootstrap";
 // import AuthVerify from "./common/auth-verify";
 
 const App = () => {
@@ -47,7 +51,8 @@ const App = () => {
     return () => {
       window.removeEventListener('storage', handleStorageChange);
     };
-  }, []);
+
+  }, [JSON.parse(localStorage.getItem('cartItem')).length]);
 
 
   const logOut = () => {
@@ -64,38 +69,35 @@ const App = () => {
             <Navbar.Toggle aria-controls="basic-navbar-nav" />
             <Navbar.Collapse id="basic-navbar-nav">
               <Nav className="me-auto">
-                <Nav.Link href="#home">Home</Nav.Link>
-                <Nav.Link href="#about">About</Nav.Link>
-                <Nav.Link href="#services">Services</Nav.Link>
-                <Nav.Link href="#works">Works</Nav.Link>
-                <Nav.Link href="#teams">Teams</Nav.Link>
-                <Nav.Link href="#testimonials">Testimonials</Nav.Link>
-                <Nav.Link href="#pricing">Pricing</Nav.Link>
-                <Nav.Link href="#blog">Blog</Nav.Link>
-                <Nav.Link href="#contact">Contact</Nav.Link>
-
+                <Nav.Link href="/">Trang chủ</Nav.Link>
+                <Nav.Link href="/introduce">Giới thiệu</Nav.Link>
+                <Nav.Link href="/product">Sản phẩm</Nav.Link>
+                <Nav.Link href="/contact">Liên hệ</Nav.Link>
                 {currentUser ? (
                   <div className="navbar-nav ml-auto">
-
-                    <li className="nav-item">
-
-                      <Link to={"/profile"} className="nav-link">
-                        <BsPersonCircle className="custom-cart-icon" /> {customer.username}
-                      </Link>
-                    </li>
-
-                    <li className="nav-item">
-                      <a href="/login" className="nav-link" onClick={logOut}>
-                        <i className="fas fa-sign-out-alt"></i> Đăng xuất
-                      </a>
-                    </li>
-                    <li className="nav-item">
-                      <a href="/shopping-cart" className="nav-link">
+                    <Nav.Link href="/contact">
+                      <a href="/shopping-cart" >
                         <BsFillCartFill className="custom-cart-icon" />
                         <div className="custom-badge">{cartItem.length}</div>
-
                       </a>
-                    </li>
+                    </Nav.Link>
+                    <Dropdown>
+                      <Dropdown.Toggle style={{ backgroundColor: "white", border: "none", width: "70px" }}>
+                        <BsPersonCircle className="custom-cart-icon" />
+                        <span style={{ color: "black" }}>{customer.username}</span>
+                      </Dropdown.Toggle>
+                      <Dropdown.Menu style={{ right: 0, left: "auto" }}>
+                        <Dropdown.Item eventKey="1" href="/profile">
+                          Tài khoản
+                        </Dropdown.Item>
+                        <Dropdown.Item eventKey="2" href="/order-customer">Quản lý đơn hàng</Dropdown.Item>
+                        <Dropdown.Divider />
+                        <Dropdown.Item eventKey="3" href="/login">
+                          Đăng xuất
+                        </Dropdown.Item>
+                      </Dropdown.Menu>
+                    </Dropdown>
+
                   </div>
                 ) : (
                   <div className="navbar-nav ml-auto">
@@ -105,11 +107,7 @@ const App = () => {
                       </Link>
                     </li>
 
-                    <li className="nav-item">
-                      <Link to={"/register"} className="nav-link">
-                        <i className="fas fa-user-plus"></i> Sign Up
-                      </Link>
-                    </li>
+
                   </div>
                 )}
               </Nav>
@@ -129,11 +127,14 @@ const App = () => {
           <Route path="/shopping-cart" element={<ShoppingCart />} />
           <Route path="/product-detail/:productId" element={<ProductDetail />} />
           <Route path="/checkout" element={<OrderCompoment />} />
+          <Route path="/introduce" element={<IntroduceComponent />} />
+          <Route path="/contact" element={<ContactComponent />} />
+          <Route path="/order-customer" element={<OrderCustomerComponent />} />
 
         </Routes>
       </div>
 
-      <div class="footer-dark">
+      <div class="footer-dark" >
         <footer>
           <div class="container">
             <div class="row">
