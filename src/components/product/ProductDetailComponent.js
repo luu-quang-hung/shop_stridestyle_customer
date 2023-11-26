@@ -64,18 +64,19 @@ const ProductDetail = () => {
 
   const addProductCard = () => {
     const cartItem = {
-      productId: product.id,
+      orderDetailId: productDetail.id,
       productName: product.nameProduct,
       image: product.image,
       price: product.price,
       size: productDetail.size,
       property: productDetail.property,
       quantity: productDetail.quantity,
+      productId: product.id
     };
     const existingCart = JSON.parse(localStorage.getItem('cartItem')) || [];
 
     const existingItemIndex = existingCart.findIndex(item => (
-      item.productId === cartItem.productId &&
+      item.orderDetailId === cartItem.orderDetailId &&
       item.size === cartItem.size &&
       item.property === cartItem.property
     ));

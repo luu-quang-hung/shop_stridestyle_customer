@@ -31,7 +31,7 @@ const App = () => {
   useEffect(() => {
     const user = AuthService.getCurrentUser();
     if (user) {
-      setCurrentUser(user.roles.includes("ROLE_ADMIN"));
+      setCurrentUser(user.roles.includes("ROLE_USER"));
     }
 
     const logoutListener = () => {
@@ -52,7 +52,7 @@ const App = () => {
       window.removeEventListener('storage', handleStorageChange);
     };
 
-  }, [JSON.parse(localStorage.getItem('cartItem')).length]);
+  }, []);
 
 
   const logOut = () => {
@@ -78,7 +78,7 @@ const App = () => {
                     <Nav.Link href="/contact">
                       <a href="/shopping-cart" >
                         <BsFillCartFill className="custom-cart-icon" />
-                        <div className="custom-badge">{cartItem.length}</div>
+                        <div className="custom-badge">{cartItem.length || 0}</div>
                       </a>
                     </Nav.Link>
                     <Dropdown>

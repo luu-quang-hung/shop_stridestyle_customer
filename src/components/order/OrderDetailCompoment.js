@@ -4,7 +4,12 @@ import { Form } from "react-bootstrap";
 import "../css/shopping_cart.css"
 import OrderDetailSerivce from "../../services/order_detail.service";
 import CurrencyFormatter from "../common/CurrencyFormatter";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { useNavigate } from "react-router-dom";
 const OrderCompoment = () => {
+
+    const navigate = new useNavigate();
     const formatter = new CurrencyFormatter();
 
     const [cartItem, setCartItem] = useState([]);
@@ -25,7 +30,7 @@ const OrderCompoment = () => {
         ward: null,
         note: null,
         shippingMethod: 'GHN', // Giả sử giao hàng nhanh là phương thức mặc định
-        paymentMethod: 'COD', // Giả sử thanh toán khi giao hàng là phương thức mặc định
+        paymentMethod: true, // Giả sử thanh toán khi giao hàng là phương thức mặc định
     });
 
     const [formErrors, setFormErrors] = useState({
@@ -129,10 +134,10 @@ const OrderCompoment = () => {
             from_district_id: 3440,
             to_district_id: parseInt(toDistrict),
             to_ward_code: wardId,
-            height: totalSl * 3,
-            length: totalSl * 3,
+            height: totalSl * 1,
+            length: totalSl * 1,
             weight: totalSl * 1,
-            width: totalSl * 3
+            width: totalSl * 1
         }
         OrderDetailSerivce.getShipping(jsonShipping)
             .then(res => {
@@ -143,7 +148,6 @@ const OrderCompoment = () => {
             })
 
         setFormErrors((prevFormErrors) => ({ ...prevFormErrors, ward: '' }));
-
     };
 
     const handleSubmit = () => {
@@ -159,7 +163,7 @@ const OrderCompoment = () => {
         if (sendForm.telephone === '' || sendForm.telephone === null) {
             errors.telephone = 'Vui lòng nhập Số điện thoại';
         }
-     
+
         if (sendForm.address === '' || sendForm.address === null) {
             errors.address = 'Vui lòng nhập Địa chỉ';
         }
@@ -193,17 +197,37 @@ const OrderCompoment = () => {
             fullName: sendForm.name,
             note: sendForm.note,
             payment: sendForm.paymentMethod,
-            phone_number: sendForm.telephone,
-            transport_fee: shipping,
-            voucher_id: 0,
-            order: cartItem
+            phoneNumber: sendForm.telephone,
+            transportFee: shipping,
+            voucherId: 0,
+            orderDetailRequests: cartItem,
+            idCustomer: 3,
+            status: 0,
         }
-        console.log(jsonOrder);
+        OrderDetailSerivce.createBill(jsonOrder)
+            .then(res => {
+                setTimeout(()=> 
+                navigate(`/`)
+                , 3000)
+                toast.success("Đặt hàng thành công", {
+                    position: "top-right",
+                    autoClose: 1000
+                })
+                // localStorage.removeItem("cartItem")
+                
+            }).catch(err => {
+                toast.success("Đặt hàng thất bại", {
+                    position: "top-right",
+                    autoClose: 1000
+                })
+                console.log(err);
+            })
     };
+
     return (
         <CContainer style={{ marginTop: "100px", marginBottom: "100px" }}>
+            <ToastContainer position="top-right"></ToastContainer>
             <CRow>
-
                 <CCol md={1}></CCol>
                 <CCol md={6}>
                     <h4>Thông tin giao hàng</h4>
@@ -227,7 +251,6 @@ const OrderCompoment = () => {
                                 onChange={handleInputChange}
                             />
                             <div className="text-danger">{formErrors.email}</div>
-
                         </CCol>
                         <CCol md={4}>
                             <CFormInput
@@ -397,7 +420,6 @@ const OrderCompoment = () => {
 
                 </CCol>
                 <CCol md={1}></CCol>
-
             </CRow>
         </CContainer>
     );
