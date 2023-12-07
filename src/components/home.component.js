@@ -47,13 +47,13 @@ const Home = () => {
         <Row className="justify-content-center">
           <Carousel className="w-100">
             <Carousel.Item>
-              <img className="d-block w-100" style={{height:"531px"}} src={banner1} alt="Slide 1" />
+              <img className="d-block w-100" style={{ height: "531px" }} src={banner1} alt="Slide 1" />
             </Carousel.Item>
             <Carousel.Item>
-              <img className="d-block w-100" style={{height:"531px"}} src={banner2} alt="Slide 2" />
+              <img className="d-block w-100" style={{ height: "531px" }} src={banner2} alt="Slide 2" />
             </Carousel.Item>
             <Carousel.Item>
-              <img className="d-block w-100" style={{height:"531px"}} src={banner3} alt="Slide 3" />
+              <img className="d-block w-100" style={{ height: "531px" }} src={banner3} alt="Slide 3" />
             </Carousel.Item>
           </Carousel>
         </Row>
@@ -67,7 +67,7 @@ const Home = () => {
                     <Card style={{ width: '18rem' }} >
                       <Card.Img variant="top" className="card-img" src={product.image} />
                       <hr color="brown" noshade="noshade" />
-                      <Card.Body style={{textAlign:"center"}} onClick={() => cardProductClick(product.id)}>
+                      <Card.Body style={{ textAlign: "center" }} onClick={() => cardProductClick(product.id)}>
                         <Card.Title>{product.nameProduct}</Card.Title>
                         <Card.Text>
                           {product.description}
@@ -81,10 +81,6 @@ const Home = () => {
             </CCardBody>
           </CCard>
         </div>
-
-
-
-
       </div>
     </div>
   );
