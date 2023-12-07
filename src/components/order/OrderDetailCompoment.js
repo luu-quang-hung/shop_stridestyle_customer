@@ -7,6 +7,8 @@ import CurrencyFormatter from "../common/CurrencyFormatter";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useNavigate } from "react-router-dom";
+import productService from "../../services/product.service";
+import order_detailService from "../../services/order_detail.service";
 const OrderCompoment = () => {
 
     const navigate = new useNavigate();
@@ -140,10 +142,10 @@ const OrderCompoment = () => {
             from_district_id: 3440,
             to_district_id: parseInt(toDistrict),
             to_ward_code: wardId,
-            height: totalSl * 1,
-            length: totalSl * 1,
-            weight: totalSl * 1,
-            width: totalSl * 1
+            height: 1,
+            length: 1,
+            weight: 1,
+            width: 1
         }
         OrderDetailSerivce.getShipping(jsonShipping)
             .then(res => {
@@ -157,6 +159,7 @@ const OrderCompoment = () => {
     };
 
     const handleSubmit = () => {
+
         const errors = {};
         let regEmail = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
         var phoneRegex = /^(0[35789]\d{8})$/;
@@ -210,10 +213,37 @@ const OrderCompoment = () => {
             idCustomer: 3,
             status: 0,
         }
+
+        console.log(sendForm);
+        if (jsonOrder.payment === 1) {
+            const jsonVnpay = {
+                diaChiGiaoHang: jsonOrder.address,
+                emailNguoiNhann: sendForm.email,
+                ghiChu: sendForm.note,
+                hoaDonId: (Math.floor(Math.random() * 10000) + 1),
+                idCustomer: jsonOrder.idCustomer,
+                nameGiamGia: "0",
+                nguoiNhan: jsonOrder.fullName,
+                orderInfor: "Mua qua vn pay",
+                sdtNguoiNhan: jsonOrder.phoneNumber,
+                tienGiamGia: jsonOrder.discount,
+                tienShipHD: jsonOrder.transportFee,
+                total: jsonOrder.downTotal
+            }
+            order_detailService.pushVnpay(jsonVnpay)
+            .then(res => {
+                console.log(res);
+                window.location.assign(res.data.data);
+        
+            }).catch(errors =>{
+                console.log(errors);
+            })
+            
+        }
         OrderDetailSerivce.createBill(jsonOrder)
             .then(res => {
                 setTimeout(() =>
-                    navigate(`/`)
+                    navigate(`/checkout-done`)
                     , 3000)
                 toast.success("Đặt hàng thành công", {
                     position: "top-right",

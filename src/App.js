@@ -19,6 +19,7 @@ import OrderCustomerComponent from "./components/order-customer/OrderCustomerCom
 import ContactComponent from "./components/contact/ContactComponent";
 import IntroduceComponent from "./components/introduce/IntroduceComponent";
 import '../node_modules/bootstrap/dist/css/bootstrap.min.css';
+import OrderDone from "./components/order/order-done";
 import { BsFillCartFill, BsPersonCircle, BsFacebook, BsTwitter, BsTelegram, BsInstagram } from "react-icons/bs";
 import { Dropdown } from "react-bootstrap";
 // import AuthVerify from "./common/auth-verify";
@@ -53,7 +54,6 @@ const App = () => {
     };
 
   }, []);
-
 
   const logOut = () => {
     AuthService.logout();
@@ -130,6 +130,7 @@ const App = () => {
           <Route path="/introduce" element={<IntroduceComponent />} />
           <Route path="/contact" element={<ContactComponent />} />
           <Route path="/order-customer" element={<OrderCustomerComponent />} />
+          <Route path="/checkout-done" element={<OrderDone />} />
 
         </Routes>
       </div>
