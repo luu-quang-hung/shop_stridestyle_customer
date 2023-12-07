@@ -5,19 +5,26 @@ import { useParams } from 'react-router-dom';
 import "../css/product_detail.css"
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import CurrencyFormatter from "../common/CurrencyFormatter";
 const ProductDetail = () => {
-
+  const formatter = new CurrencyFormatter();
   const { productId } = useParams();
 
   const [product, setProduct] = useState([]);
   const [productDetail, setProductDetail] = useState({
+    nameProduct: null,
     size: null,
     property: null,
     quantity: 1
   });
+  const [quantityProduct, setQuantityProduct] = useState(0)
+  const [size, setSize] = useState([]);
+  const [property, setProperty] = useState([]);
   useEffect(() => {
     getProducId();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    getProperty();
+    window.scroll(0, 0)
+
   }, []);
 
   const getProducId = () => {
@@ -28,7 +35,32 @@ const ProductDetail = () => {
       .catch(err => {
         console.log(err);
       })
+
   };
+
+  const getProperty = () => {
+    const jsonPage = {
+      page: 0,
+      size: 1000
+    }
+    productService.findAllSize(jsonPage)
+      .then(res => {
+        setSize(res.data.content)
+      })
+      .catch(error => {
+        console.log("Error load data Trademark", error);
+      })
+
+    productService.findAllProperty(jsonPage)
+      .then(res => {
+        setProperty(res.data.content)
+
+      })
+      .catch(error => {
+        console.log("Error load data Trademark", error);
+      })
+  }
+
 
   const handleInputChange = (event) => {
     const value = event.target.value;
@@ -46,33 +78,52 @@ const ProductDetail = () => {
   };
 
   const handleSizeClick = (size) => {
+
     setProductDetail(prevState => ({
       ...prevState,
       size: size
     }));
+    if (productDetail.nameProduct === null) {
+      setProductDetail(prevState => ({
+        ...prevState,
+        nameProduct: product.id
+      }));
+    }
+    getQuantityByName();
+
   };
 
   const handlePropertyClick = (property) => {
+
     setProductDetail(prevState => ({
       ...prevState,
       property: property
     }));
+    if (productDetail.nameProduct === null) {
+      setProductDetail(prevState => ({
+        ...prevState,
+        nameProduct: product.id
+      }));
+    }
+
+
   };
 
   const addProductCard = () => {
     const cartItem = {
-      productId: product.id,
+      orderDetailId: productDetail.id,
       productName: product.nameProduct,
       image: product.image,
       price: product.price,
       size: productDetail.size,
       property: productDetail.property,
       quantity: productDetail.quantity,
+      productId: product.id
     };
     const existingCart = JSON.parse(localStorage.getItem('cartItem')) || [];
 
     const existingItemIndex = existingCart.findIndex(item => (
-      item.productId === cartItem.productId &&
+      item.orderDetailId === cartItem.orderDetailId &&
       item.size === cartItem.size &&
       item.property === cartItem.property
     ));
@@ -91,6 +142,27 @@ const ProductDetail = () => {
     localStorage.setItem('cartItem', JSON.stringify(existingCart));
 
   }
+
+  const getQuantityByName = () => {
+    if (productDetail.property != null && productDetail.size != null) {
+      productService.findQuantityByName(productDetail)
+        .then(res => {
+          console.log(res);
+          if (res.data.data === null) {
+            setQuantityProduct(0)
+          } else {
+            setQuantityProduct(res.data.data.quantity)
+
+          }
+        }).catch(err => {
+          console.log(err);
+        })
+    } else {
+      setQuantityProduct(0)
+
+    }
+  }
+  console.log(productDetail);
   return (
     <div className="p-5 container">
       <ToastContainer position="top-right"></ToastContainer>
@@ -98,7 +170,7 @@ const ProductDetail = () => {
         <CCol md={6}>
           <CImage
             fluid
-            src={product.image}
+            src={product.image || ""}
           />
         </CCol>
 
@@ -108,7 +180,11 @@ const ProductDetail = () => {
               <h2>{product.nameProduct}</h2>
             </CCol>
             <CCol md={12} >
-              <CFormLabel style={{ color: "#c4996b", fontSize: "20px", fontWeight: "bold" }}>Giá: {product.price}</CFormLabel>
+              <CFormLabel style={{ color: "#c4996b", fontSize: "20px", fontWeight: "bold" }}>Giá: {formatter.formatVND(product.price)}</CFormLabel>
+            </CCol>
+            <CCol md={12} >
+              <CFormLabel>{product.description}
+              </CFormLabel>
             </CCol>
             <CCol md={12}>
               <CFormLabel>Tình trạng:<span style={{ color: "#c4996b", fontSize: "20px", fontWeight: "bold" }}>Còn hàng</span> </CFormLabel>
@@ -121,17 +197,17 @@ const ProductDetail = () => {
             </CCol>
             <CCol md={12} className="horizontal-row">
               <div className="horizontal-row">
-                {product.productDetailEntities && product.productDetailEntities.length > 0 && (
-                  product.productDetailEntities.map((productDetailMap, index) => (
+                {
+                  property.map((productDetailMap, index) => (
                     <div
                       key={index}
-                      className={`property-item ${productDetail.property === productDetailMap.idProperty.name ? 'selected' : ''}`}
-                      onClick={() => handlePropertyClick(productDetailMap.idProperty.name)}
+                      className={`property-item ${productDetail.property === productDetailMap.name ? 'selected' : ''}`}
+                      onClick={() => handlePropertyClick(productDetailMap.name)}
                     >
-                      {productDetailMap.idProperty.name}
+                      {productDetailMap.name}
                     </div>
-                  ))
-                )}
+                  )
+                  )}
               </div>
             </CCol>
 
@@ -140,21 +216,24 @@ const ProductDetail = () => {
             </CCol>
             <CCol md={12}>
               <div className="horizontal-row">
-                {product.productDetailEntities && product.productDetailEntities.length > 0 && (
-                  product.productDetailEntities.map((productDetailMap, index) => (
+                {
+                  size.map((productDetailMap, index) => (
                     <div
                       key={index}
-                      className={`size-item ${productDetail.size === productDetailMap.idSize.name ? 'selected' : ''}`}
-                      onClick={() => handleSizeClick(productDetailMap.idSize.name)}
+                      className={`size-item ${productDetail.size === productDetailMap.name ? 'selected' : ''}`}
+                      onClick={() => handleSizeClick(productDetailMap.name)}
                     >
-                      {productDetailMap.idSize.name}
+                      {productDetailMap.name}
                     </div>
-                  ))
-                )}
+                  )
+                  )}
               </div>
             </CCol>
-            <CCol md={12}>
+            <CCol md={2}>
               <CFormLabel>Số lượng: </CFormLabel>
+            </CCol>
+            <CCol md={10}>
+              <CFormLabel>Tồn Kho: </CFormLabel>
             </CCol>
             <CCol md={2}>
               <CFormInput
@@ -164,6 +243,15 @@ const ProductDetail = () => {
                 defaultValue={1}
                 onChange={handleInputChange}
                 min={1}
+              ></CFormInput>
+            </CCol>
+            <CCol md={2}>
+              <CFormInput
+                type="number"
+                id="quantity"
+                value={quantityProduct}
+                readOnly
+                disabled
               ></CFormInput>
             </CCol>
             <CCol md={12}>

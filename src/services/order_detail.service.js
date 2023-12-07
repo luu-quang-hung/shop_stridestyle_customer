@@ -1,6 +1,6 @@
 import axios from 'axios';
 import authHeader from './auth-header';
-const API_URL = 'http://localhost:8080/product/manager/';
+const API_URL = 'http://localhost:8080/bill-manager/';
 
 class OrderDetailSerivce {
 
@@ -23,6 +23,11 @@ class OrderDetailSerivce {
 
     getShipping(json){
         return axios.post(`https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/fee`, json, { headers: this.headersAdd });
+
+    }
+
+    createBill(json){
+        return axios.post(API_URL + "create-bill", json, { headers: authHeader()});
 
     }
 }

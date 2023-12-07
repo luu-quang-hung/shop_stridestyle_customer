@@ -1,10 +1,10 @@
 
-.product-card h3 {
-    margin-top: 10px;
-  }
+
   .spNew{
-    margin-top: 10px;
+    margin-top: 40px;
     text-align: center;
+    font-size: 35px;
+    font-weight: bold;
   }
   .card-img:hover {
     transform: scale(1.1); /* Thay đổi tỷ lệ kích thước để hình ảnh nổi lên */
