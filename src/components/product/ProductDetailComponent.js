@@ -83,29 +83,55 @@ const ProductDetail = () => {
       ...prevState,
       size: size
     }));
-    if (productDetail.nameProduct === null) {
-      setProductDetail(prevState => ({
-        ...prevState,
-        nameProduct: product.id
-      }));
-    }
-    getQuantityByName();
+    const payload = { ...productDetail }
+    payload.size = size;
+    payload.nameProduct = product.id;
+    if (productDetail.property != null && productDetail.size != null) {
+      productService.findQuantityByName(payload)
+        .then(res => {
+          console.log(res);
+          if (res.data.data === null) {
+            setQuantityProduct(0)
+          } else {
+            setQuantityProduct(res.data.data.quantity)
 
+          }
+        }).catch(err => {
+          console.log(err);
+        })
+    } else {
+      setQuantityProduct(0)
+
+    }
   };
 
   const handlePropertyClick = (property) => {
 
     setProductDetail(prevState => ({
       ...prevState,
-      property: property
+      property: property.name
     }));
-    if (productDetail.nameProduct === null) {
-      setProductDetail(prevState => ({
-        ...prevState,
-        nameProduct: product.id
-      }));
-    }
+    
+    const payload = { ...productDetail }
+    payload.property = property.name;
+    payload.nameProduct = product.id;
+    if (productDetail.property != null && productDetail.size != null) {
+      productService.findQuantityByName(payload)
+        .then(res => {
+          console.log(res);
+          if (res.data.data === null) {
+            setQuantityProduct(0)
+          } else {
+            setQuantityProduct(res.data.data.quantity)
 
+          }
+        }).catch(err => {
+          console.log(err);
+        })
+    } else {
+      setQuantityProduct(0)
+
+    }
 
   };
 
@@ -143,25 +169,6 @@ const ProductDetail = () => {
 
   }
 
-  const getQuantityByName = () => {
-    if (productDetail.property != null && productDetail.size != null) {
-      productService.findQuantityByName(productDetail)
-        .then(res => {
-          console.log(res);
-          if (res.data.data === null) {
-            setQuantityProduct(0)
-          } else {
-            setQuantityProduct(res.data.data.quantity)
-
-          }
-        }).catch(err => {
-          console.log(err);
-        })
-    } else {
-      setQuantityProduct(0)
-
-    }
-  }
   console.log(productDetail);
   return (
     <div className="p-5 container">
@@ -202,7 +209,7 @@ const ProductDetail = () => {
                     <div
                       key={index}
                       className={`property-item ${productDetail.property === productDetailMap.name ? 'selected' : ''}`}
-                      onClick={() => handlePropertyClick(productDetailMap.name)}
+                      onClick={() => handlePropertyClick(productDetailMap)}
                     >
                       {productDetailMap.name}
                     </div>

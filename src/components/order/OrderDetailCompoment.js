@@ -213,8 +213,6 @@ const OrderCompoment = () => {
             idCustomer: 3,
             status: 0,
         }
-
-        console.log(sendForm);
         if (jsonOrder.payment === 1) {
             const jsonVnpay = {
                 diaChiGiaoHang: jsonOrder.address,
@@ -238,7 +236,7 @@ const OrderCompoment = () => {
             }).catch(errors =>{
                 console.log(errors);
             })
-            
+            return;
         }
         OrderDetailSerivce.createBill(jsonOrder)
             .then(res => {
