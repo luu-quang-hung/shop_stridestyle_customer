@@ -19,6 +19,7 @@ import OrderCustomerComponent from "./components/order-customer/OrderCustomerCom
 import ContactComponent from "./components/contact/ContactComponent";
 import IntroduceComponent from "./components/introduce/IntroduceComponent";
 import '../node_modules/bootstrap/dist/css/bootstrap.min.css';
+import OrderDone from "./components/order/order-done";
 import { BsFillCartFill, BsPersonCircle, BsFacebook, BsTwitter, BsTelegram, BsInstagram } from "react-icons/bs";
 import { Dropdown } from "react-bootstrap";
 // import AuthVerify from "./common/auth-verify";
@@ -31,7 +32,7 @@ const App = () => {
   useEffect(() => {
     const user = AuthService.getCurrentUser();
     if (user) {
-      setCurrentUser(user.roles.includes("ROLE_ADMIN"));
+      setCurrentUser(user.roles.includes("ROLE_USER"));
     }
 
     const logoutListener = () => {
@@ -52,8 +53,7 @@ const App = () => {
       window.removeEventListener('storage', handleStorageChange);
     };
 
-  }, [JSON.parse(localStorage.getItem('cartItem')).length]);
-
+  }, []);
 
   const logOut = () => {
     AuthService.logout();
@@ -78,7 +78,7 @@ const App = () => {
                     <Nav.Link href="/contact">
                       <a href="/shopping-cart" >
                         <BsFillCartFill className="custom-cart-icon" />
-                        <div className="custom-badge">{cartItem.length}</div>
+                        <div className="custom-badge">{cartItem.length || 0}</div>
                       </a>
                     </Nav.Link>
                     <Dropdown>
@@ -130,6 +130,7 @@ const App = () => {
           <Route path="/introduce" element={<IntroduceComponent />} />
           <Route path="/contact" element={<ContactComponent />} />
           <Route path="/order-customer" element={<OrderCustomerComponent />} />
+          <Route path="/checkout-done" element={<OrderDone />} />
 
         </Routes>
       </div>
