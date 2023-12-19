@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import Pagination from 'react-bootstrap/Pagination';
+import { Pagination } from "react-bootstrap";
 
 
 const PaginationCustom = ({ maxPageNumber = 0, total, perPage, onChange, currentPageP }) => {
