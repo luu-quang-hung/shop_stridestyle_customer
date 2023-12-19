@@ -373,9 +373,9 @@ const OrderCompoment = () => {
                     <CCol md={12} className="mb-3" >
                         <CFormCheck className="radioPayment" type="radio" name="radioVc" value="GHN" defaultChecked />
                         <div className="cardPayment">
-                        <CRow>
+                            <CRow>
                                 <CCol md={2}>
-                                <CCardImage style={{ width: "55px" }} src="https://play-lh.googleusercontent.com/oPEbg7Lgj98vzT9qmq9sOiY-t6IR_frAY-ON7KHOBMqQpt_qxDQmom8lCWlNM1cJIIZ2" />
+                                    <CCardImage style={{ width: "55px" }} src="https://play-lh.googleusercontent.com/oPEbg7Lgj98vzT9qmq9sOiY-t6IR_frAY-ON7KHOBMqQpt_qxDQmom8lCWlNM1cJIIZ2" />
                                 </CCol>
                                 <span>Giao hàng nhanh toàn quốc()</span>
                             </CRow>
@@ -394,9 +394,9 @@ const OrderCompoment = () => {
                             onChange={handleInputChange}
                         />
                         <div className="cardPayment">
-                        <CRow>
+                            <CRow>
                                 <CCol md={2}>
-                                <CCardImage style={{ width: "55px" }} src="https://hstatic.net/0/0/global/design/seller/image/payment/cod.svg?v=6" />
+                                    <CCardImage style={{ width: "55px" }} src="https://hstatic.net/0/0/global/design/seller/image/payment/cod.svg?v=6" />
                                 </CCol>
                                 <span>Thanh toán khi giao hàng (COD)</span>
 
