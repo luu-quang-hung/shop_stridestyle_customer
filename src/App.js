@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Routes, Route, Link, useNavigate } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "./App.css";
-
+import userService from "./services/user.service";
 import AuthService from "./services/auth.service";
 import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
@@ -10,7 +10,7 @@ import Navbar from 'react-bootstrap/Navbar';
 import Login from "./components/login/login.component";
 import Register from "./components/login/register.component";
 import Home from "./components/home.component";
-import Profile from "./components/login/profile.component";
+import Profile from "./components/login/ProfileCustomerCompoment";
 import Product from "./components/product/product.component";
 import ShoppingCart from "./components/cart/shopping_cart.component";
 import ProductDetail from "./components/product/ProductDetailComponent";
@@ -23,12 +23,14 @@ import OrderDone from "./components/order/order-done";
 import { BsFillCartFill, BsPersonCircle, BsFacebook, BsTwitter, BsTelegram, BsInstagram } from "react-icons/bs";
 import { Dropdown } from "react-bootstrap";
 // import AuthVerify from "./common/auth-verify";
+const cartItem = JSON.parse(localStorage.getItem('cartItem')) || [];
+
 const App = () => {
   const navigate = useNavigate();
 
   const [currentUser, setCurrentUser] = useState(undefined);
   const customer = JSON.parse(localStorage.getItem('user'));
-  const [indexCart, setIndexCart] = useState(0);
+  const [indexCart, setIndexCart] = useState(cartItem);
 
   useEffect(() => {
     const user = AuthService.getCurrentUser();
@@ -39,20 +41,27 @@ const App = () => {
     if (!customer || !customer.accessToken) {
       navigate("/login")
     }
-    const cartItem = JSON.parse(localStorage.getItem('cartItem')) || [];
+   if (customer) {
+    getCustomer();
+   }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [indexCart]);
 
-    // Cập nhật trạng thái với độ dài của mảng cartItem
-    setIndexCart(cartItem.length);
-  }, []);
-
-
-
-
-
+  console.log('====================================');
+  console.log(indexCart);
+  console.log('====================================');
   const logOut = () => {
     AuthService.logout();
     setCurrentUser(undefined);
   };
+  const getCustomer = () => {
+    userService.getCustomerByIdUser(customer.id)
+      .then(res => {
+        localStorage.setItem("customer", JSON.stringify(res.data.data));
+      }).catch(err => {
+        console.log(err);
+      })
+  }
 
   return (
     <div >
@@ -72,7 +81,7 @@ const App = () => {
                     <Nav.Link href="/contact">
                       <a href="/shopping-cart" >
                         <BsFillCartFill className="custom-cart-icon" />
-                        <div className="custom-badge">{indexCart || 0}</div>
+                        <div className="custom-badge">{indexCart.length || 0}</div>
                       </a>
                     </Nav.Link>
                     <Dropdown>

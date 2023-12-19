@@ -123,7 +123,6 @@ const ProductDetail = () => {
             setQuantityProduct(0)
           } else {
             setQuantityProduct(res.data.data.quantity)
-
           }
         }).catch(err => {
           console.log(err);

@@ -8,10 +8,12 @@ class UserService {
     return axios.get(API_URL + 'all');
   }
 
-
-
   getProduct() {
     return axios.get(API_URL + 'product/findAll', { headers: authHeader() });
+  }
+
+  getCustomerByIdUser(idUser) {
+    return axios.get("http://localhost:8080/customer-manager/find-customer-by-user/" + idUser , { headers: authHeader() });
   }
 
  
