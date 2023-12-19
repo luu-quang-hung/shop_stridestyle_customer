@@ -34,6 +34,10 @@ const Home = () => {
                 setProductInfo(res.data.content);
             })
             .catch(err => {
+                if (err.code === "ERR_BAD_REQUEST" ) {
+                    navigate(`/login`);
+
+                }
                 console.error('Error fetching products:', err);
             })
     }
