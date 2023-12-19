@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Routes, Route, Link } from "react-router-dom";
+import { Routes, Route, Link, useNavigate } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "./App.css";
 
@@ -23,11 +23,12 @@ import OrderDone from "./components/order/order-done";
 import { BsFillCartFill, BsPersonCircle, BsFacebook, BsTwitter, BsTelegram, BsInstagram } from "react-icons/bs";
 import { Dropdown } from "react-bootstrap";
 // import AuthVerify from "./common/auth-verify";
-
 const App = () => {
+  const navigate = useNavigate();
+
   const [currentUser, setCurrentUser] = useState(undefined);
   const customer = JSON.parse(localStorage.getItem('user'));
-  const [cartItem, setCartItem] = useState([]);
+  const [indexCart, setIndexCart] = useState(0);
 
   useEffect(() => {
     const user = AuthService.getCurrentUser();
@@ -35,25 +36,18 @@ const App = () => {
       setCurrentUser(user.roles.includes("ROLE_USER"));
     }
 
-    const logoutListener = () => {
-      logOut();
-    };
-    const handleStorageChange = (event) => {
-      if (event.key === 'cartItem') {
-        const updatedCartItem = JSON.parse(event.newValue) || [];
-        setCartItem(updatedCartItem);
-      }
-    };
-    const storedCartItem = JSON.parse(localStorage.getItem('cartItem')) || [];
-    setCartItem(storedCartItem);
+    if (!customer || !customer.accessToken) {
+      navigate("/login")
+    }
+    const cartItem = JSON.parse(localStorage.getItem('cartItem')) || [];
 
-    window.addEventListener('storage', handleStorageChange);
-
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-    };
-
+    // Cập nhật trạng thái với độ dài của mảng cartItem
+    setIndexCart(cartItem.length);
   }, []);
+
+
+
+
 
   const logOut = () => {
     AuthService.logout();
@@ -78,7 +72,7 @@ const App = () => {
                     <Nav.Link href="/contact">
                       <a href="/shopping-cart" >
                         <BsFillCartFill className="custom-cart-icon" />
-                        <div className="custom-badge">{cartItem.length || 0}</div>
+                        <div className="custom-badge">{indexCart || 0}</div>
                       </a>
                     </Nav.Link>
                     <Dropdown>
@@ -92,7 +86,7 @@ const App = () => {
                         </Dropdown.Item>
                         <Dropdown.Item eventKey="2" href="/order-customer">Quản lý đơn hàng</Dropdown.Item>
                         <Dropdown.Divider />
-                        <Dropdown.Item eventKey="3" href="/login">
+                        <Dropdown.Item eventKey="3" onClick={logOut} href="/login">
                           Đăng xuất
                         </Dropdown.Item>
                       </Dropdown.Menu>
@@ -103,10 +97,14 @@ const App = () => {
                   <div className="navbar-nav ml-auto">
                     <li className="nav-item">
                       <Link to={"/login"} className="nav-link">
-                        <i className="fas fa-sign-in-alt"></i> Login
+                        <i className="fas fa-sign-in-alt"></i> Đăng nhập
                       </Link>
                     </li>
-
+                    <li className="nav-item">
+                      <Link to={"/sigin"} className="nav-link">
+                        <i className="fas fa-sign-in-alt"></i> Đăng ký
+                      </Link>
+                    </li>
 
                   </div>
                 )}
@@ -161,7 +159,7 @@ const App = () => {
               </div>
               <div class="col item social"><BsFacebook></BsFacebook>   <BsTelegram />   <BsInstagram />  <BsTwitter /> </div>
             </div>
-            <p class="copyright">Company Name © 2018</p>
+            <p class="copyright">Dự án tốt nghiệp © 2023</p>
           </div>
         </footer>
       </div>

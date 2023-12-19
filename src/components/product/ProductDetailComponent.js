@@ -111,7 +111,7 @@ const ProductDetail = () => {
       ...prevState,
       property: property.name
     }));
-    
+
     const payload = { ...productDetail }
     payload.property = property.name;
     payload.nameProduct = product.id;
@@ -136,6 +136,34 @@ const ProductDetail = () => {
   };
 
   const addProductCard = () => {
+    if (productDetail.property === null) {
+      toast.error("Vui lòng chọn màu sắc", {
+        position: "top-right",
+        autoClose: 1000
+      })
+      return;
+    }
+    if (productDetail.size === null) {
+      toast.error("Vui lòng chọn kích thước", {
+        position: "top-right",
+        autoClose: 1000
+      })
+      return
+    }
+    if (productDetail.quantity < 1 || productDetail.quantity === null) {
+      toast.error("Số lượng không được để trống", {
+        position: "top-right",
+        autoClose: 1000
+      })
+      return;
+    }
+    if (productDetail.quantity > quantityProduct) {
+      toast.error("Số lượng không được lớn hơn tồn kho", {
+        position: "top-right",
+        autoClose: 1000
+      })
+      return;
+    }
     const cartItem = {
       orderDetailId: productDetail.id,
       productName: product.nameProduct,
@@ -169,7 +197,6 @@ const ProductDetail = () => {
 
   }
 
-  console.log(productDetail);
   return (
     <div className="p-5 container">
       <ToastContainer position="top-right"></ToastContainer>

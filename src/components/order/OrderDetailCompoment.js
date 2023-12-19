@@ -210,7 +210,7 @@ const OrderCompoment = () => {
             transportFee: shipping,
             voucherId: 0,
             orderDetailRequests: cartItem,
-            idCustomer: 3,
+            idCustomer: JSON.parse(localStorage.getItem('user')).id,
             status: 0,
         }
         if (jsonOrder.payment === 1) {
@@ -229,24 +229,32 @@ const OrderCompoment = () => {
                 total: jsonOrder.downTotal
             }
             order_detailService.pushVnpay(jsonVnpay)
-            .then(res => {
-                console.log(res);
-                window.location.assign(res.data.data);
-        
-            }).catch(errors =>{
-                console.log(errors);
-            })
-            return;
+                .then(res => {
+                    console.log(res);
+                    window.location.assign(res.data.data);
+
+                }).catch(errors => {
+                    console.log(errors);
+                })
         }
         OrderDetailSerivce.createBill(jsonOrder)
             .then(res => {
+                if (res.data.ecode === "420") {
+                    toast.success(res.data.edec, {
+                        position: "top-right",
+                        autoClose: 1000
+                    })
+                }
                 setTimeout(() =>
                     navigate(`/checkout-done`)
                     , 3000)
-                toast.success("Đặt hàng thành công", {
-                    position: "top-right",
-                    autoClose: 1000
-                })
+                if (jsonOrder.payment !== 1) {
+                    toast.success("Đặt hàng thành công", {
+                        position: "top-right",
+                        autoClose: 1000
+                    })
+                }
+
                 // localStorage.removeItem("cartItem")
 
             }).catch(err => {
