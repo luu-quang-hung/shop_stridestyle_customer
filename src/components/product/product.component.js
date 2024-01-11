@@ -18,8 +18,8 @@ const ProductComponent = () => {
     page: 0,
     size: 12,
     nameProduct: null,
-    priceMin: null,
-    priceMax: null
+    minPrice: null,
+    maxPrice: null
   });
 
   useEffect(() => {
@@ -41,14 +41,15 @@ const ProductComponent = () => {
   }
   const handleSliderChange = (value) => {
     setPriceRange(value);
-
-    // Cập nhật state productSearch với giá trị giảm và tăng tương ứng
     setProductSearch((prevProductSearch) => ({
       ...prevProductSearch,
-      priceMin: value[0],
-      priceMax: value[1],
+      minPrice: value[0],
+      maxPrice: value[1],
     }));
   };
+  console.log('====================================');
+  console.log(productSearch);
+  console.log('====================================');
   const handleInputChange = (field, value) => {
     const nullValue = value === 'null' ? null : value;
     setProductSearch((prevSearchBill) => ({

@@ -22,6 +22,7 @@ import '../node_modules/bootstrap/dist/css/bootstrap.min.css';
 import OrderDone from "./components/order/order-done";
 import { BsFillCartFill, BsPersonCircle, BsFacebook, BsTwitter, BsTelegram, BsInstagram } from "react-icons/bs";
 import { Dropdown } from "react-bootstrap";
+import { CImage } from "@coreui/react";
 // import AuthVerify from "./common/auth-verify";
 const cartItem = JSON.parse(localStorage.getItem('cartItem')) || [];
 
@@ -72,7 +73,7 @@ const App = () => {
       <div id="header">
         <Navbar bg="light" expand="lg">
           <Container>
-            <Navbar.Brand href="/">Logo ne</Navbar.Brand>
+            <Navbar.Brand href="/"><CImage src="https://i.imgur.com/0J7xZEN.png" width={"120px"}></CImage></Navbar.Brand>
             <Navbar.Toggle aria-controls="basic-navbar-nav" />
             <Navbar.Collapse id="basic-navbar-nav">
               <Nav className="me-auto">
