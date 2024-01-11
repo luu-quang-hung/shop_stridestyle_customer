@@ -224,9 +224,9 @@ const OrderCompoment = () => {
                     })
                     return
                 }
-                // setTimeout(() =>
-                //     navigate(`/checkout-done`)
-                //     , 3000)
+                setTimeout(() =>
+                    navigate(`/checkout-done`)
+                    , 3000)
                 if (jsonOrder.payment !== 1) {
                     toast.success("Đặt hàng thành công", {
                         position: "top-right",
@@ -257,7 +257,7 @@ const OrderCompoment = () => {
                             console.log(errors);
                         })
                 }
-                // localStorage.removeItem("cartItem")
+                localStorage.removeItem("cartItem")
             }).catch(err => {
                 toast.success("Đặt hàng thất bại", {
                     position: "top-right",
