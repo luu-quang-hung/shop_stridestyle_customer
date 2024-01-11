@@ -38,12 +38,16 @@ const App = () => {
       setCurrentUser(user.roles.includes("ROLE_USER"));
     }
 
-    if (!customer || !customer.accessToken) {
-      navigate("/login")
-    }
+    // if (!customer || !customer.accessToken) {
+    //   navigate("/login")
+    // }
    if (customer) {
     getCustomer();
    }
+  //  else{
+  //   window.location.href("/login")
+  //  }
+   
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [indexCart]);
 
@@ -110,7 +114,7 @@ const App = () => {
                       </Link>
                     </li>
                     <li className="nav-item">
-                      <Link to={"/sigin"} className="nav-link">
+                      <Link to={"/"} className="nav-link">
                         <i className="fas fa-sign-in-alt"></i> Đăng ký
                       </Link>
                     </li>

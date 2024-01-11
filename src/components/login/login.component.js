@@ -57,11 +57,22 @@ class Login extends Component {
 
     if (this.checkBtn.context._errors.length === 0) {
       AuthService.login(this.state.username, this.state.password).then(
-        () => {
-          this.props.router.navigate("/");
-          window.location.reload();
+        (response) => {
+          if (response.roles.includes("ROLE_ADMIN")|| response.roles.includes("ROLE_GUEST") ){
+            // Cập nhật trạng thái với thông báo lỗi
+            this.setState({
+                loading: false,
+                message: "Tài khoản mật khẩu không chính xác"
+            });
+        } else {
+            // Nếu không phải admin, tiếp tục với việc chuyển hướng
+            this.props.router.navigate("/");
+            window.location.reload();
+        }
         },
+        
         error => {
+        
           const resMessage = "Tài khoản mật khẩu không chính xác"
 
           this.setState({
