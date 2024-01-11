@@ -11,7 +11,6 @@ class AuthService {
         password
       })
       .then(response => {
-        debugger
         if (response.data.accessToken) {
           localStorage.setItem("user", JSON.stringify(response.data));
 
@@ -23,6 +22,7 @@ class AuthService {
 
   logout() {
     localStorage.removeItem("user");
+    localStorage.removeItem("customer");
   }
 
   register(username, email, password) {

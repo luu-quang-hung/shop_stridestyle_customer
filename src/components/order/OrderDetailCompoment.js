@@ -213,50 +213,51 @@ const OrderCompoment = () => {
             idCustomer: JSON.parse(localStorage.getItem('user')).id,
             status: 0,
         }
-        if (jsonOrder.payment === 1) {
-            const jsonVnpay = {
-                diaChiGiaoHang: jsonOrder.address,
-                emailNguoiNhann: sendForm.email,
-                ghiChu: sendForm.note,
-                hoaDonId: (Math.floor(Math.random() * 10000) + 1),
-                idCustomer: jsonOrder.idCustomer,
-                nameGiamGia: "0",
-                nguoiNhan: jsonOrder.fullName,
-                orderInfor: "Mua qua vn pay",
-                sdtNguoiNhan: jsonOrder.phoneNumber,
-                tienGiamGia: jsonOrder.discount,
-                tienShipHD: jsonOrder.transportFee,
-                total: jsonOrder.downTotal
-            }
-            order_detailService.pushVnpay(jsonVnpay)
-                .then(res => {
-                    console.log(res);
-                    window.location.assign(res.data.data);
 
-                }).catch(errors => {
-                    console.log(errors);
-                })
-        }
         OrderDetailSerivce.createBill(jsonOrder)
             .then(res => {
+                console.log(res.data.ecode);
                 if (res.data.ecode === "420") {
-                    toast.success(res.data.edec, {
+                    toast.error(res.data.edesc, {
                         position: "top-right",
                         autoClose: 1000
                     })
+                    return
                 }
-                setTimeout(() =>
-                    navigate(`/checkout-done`)
-                    , 3000)
+                // setTimeout(() =>
+                //     navigate(`/checkout-done`)
+                //     , 3000)
                 if (jsonOrder.payment !== 1) {
                     toast.success("Đặt hàng thành công", {
                         position: "top-right",
                         autoClose: 1000
                     })
                 }
+                if (jsonOrder.payment === 1) {
+                    const jsonVnpay = {
+                        diaChiGiaoHang: jsonOrder.address,
+                        emailNguoiNhann: sendForm.email,
+                        ghiChu: sendForm.note,
+                        hoaDonId: (Math.floor(Math.random() * 10000) + 1),
+                        idCustomer: jsonOrder.idCustomer,
+                        nameGiamGia: "0",
+                        nguoiNhan: jsonOrder.fullName,
+                        orderInfor: "Mua qua vn pay",
+                        sdtNguoiNhan: jsonOrder.phoneNumber,
+                        tienGiamGia: jsonOrder.discount,
+                        tienShipHD: jsonOrder.transportFee,
+                        total: jsonOrder.downTotal
+                    }
+                    order_detailService.pushVnpay(jsonVnpay)
+                        .then(res => {
+                            console.log(res);
+                            window.location.assign(res.data.data);
 
+                        }).catch(errors => {
+                            console.log(errors);
+                        })
+                }
                 // localStorage.removeItem("cartItem")
-
             }).catch(err => {
                 toast.success("Đặt hàng thất bại", {
                     position: "top-right",
@@ -373,8 +374,12 @@ const OrderCompoment = () => {
                     <CCol md={12} className="mb-3" >
                         <CFormCheck className="radioPayment" type="radio" name="radioVc" value="GHN" defaultChecked />
                         <div className="cardPayment">
-                            <CCardImage style={{ width: "55px" }} src="https://play-lh.googleusercontent.com/oPEbg7Lgj98vzT9qmq9sOiY-t6IR_frAY-ON7KHOBMqQpt_qxDQmom8lCWlNM1cJIIZ2" />
-                            <span>Giao hàng nhanh toàn quốc()</span>
+                            <CRow>
+                                <CCol md={2}>
+                                    <CCardImage style={{ width: "55px" }} src="https://play-lh.googleusercontent.com/oPEbg7Lgj98vzT9qmq9sOiY-t6IR_frAY-ON7KHOBMqQpt_qxDQmom8lCWlNM1cJIIZ2" />
+                                </CCol>
+                                <span>Giao hàng nhanh toàn quốc()</span>
+                            </CRow>
                         </div>
 
                     </CCol>
@@ -390,8 +395,13 @@ const OrderCompoment = () => {
                             onChange={handleInputChange}
                         />
                         <div className="cardPayment">
-                            <CCardImage style={{ width: "55px" }} src="https://hstatic.net/0/0/global/design/seller/image/payment/cod.svg?v=6" />
-                            <span>Thanh toán khi giao hàng (COD)</span>
+                            <CRow>
+                                <CCol md={2}>
+                                    <CCardImage style={{ width: "55px" }} src="https://hstatic.net/0/0/global/design/seller/image/payment/cod.svg?v=6" />
+                                </CCol>
+                                <span>Thanh toán khi giao hàng (COD)</span>
+
+                            </CRow>
                         </div>
                     </CCol>
                     <CCol md={12} className="mb-3">
@@ -405,8 +415,13 @@ const OrderCompoment = () => {
                             onChange={handleInputChange}
                         />
                         <div className="cardPayment">
-                            <CCardImage style={{ width: "55px" }} src="https://vnpay.vn/s1/statics.vnpay.vn/2023/9/06ncktiwd6dc1694418196384.png" />
-                            <span>Cổng VNPAY</span>
+                            <CRow>
+                                <CCol md={2}>
+                                    <CCardImage style={{ width: "55px" }} src="https://vnpay.vn/s1/statics.vnpay.vn/2023/9/06ncktiwd6dc1694418196384.png" />
+                                </CCol>
+                                <span >Cổng VNPAY</span>
+
+                            </CRow>
                         </div>
                     </CCol>
                     <CCol md={12} className=" mb-3">
@@ -420,8 +435,17 @@ const OrderCompoment = () => {
                             onChange={handleInputChange}
                         />
                         <div className="cardPayment">
-                            <CCardImage style={{ width: "55px" }} src="https://hstatic.net/0/0/global/design/seller/image/payment/other.svg?v=6" />
-                            <span>Chuyển khoản qua ngân hàng</span>
+                            <CRow>
+
+                                <CCol md={2}><CCardImage style={{ width: "55px" }} src="https://hstatic.net/0/0/global/design/seller/image/payment/other.svg?v=6" >
+
+                                </CCardImage></CCol>
+                                {/* <CCol md={9}> */}
+                                <span>Chuyển khoản qua ngân hàng (Vpbank : 1233212 - DO BA HIEU) <br />
+                                    <span style={{ color: "red" }}>  Nội dung: Chuyen Khoan + [SDT] + [TEN KHACH HANG]</span>
+                                </span>
+                                {/* </CCol> */}
+                            </CRow>
                         </div>
                     </CCol>
                     <CRow>

@@ -123,7 +123,6 @@ const ProductDetail = () => {
             setQuantityProduct(0)
           } else {
             setQuantityProduct(res.data.data.quantity)
-
           }
         }).catch(err => {
           console.log(err);
@@ -164,36 +163,59 @@ const ProductDetail = () => {
       })
       return;
     }
-    const cartItem = {
-      orderDetailId: productDetail.id,
-      productName: product.nameProduct,
-      image: product.image,
-      price: product.price,
-      size: productDetail.size,
-      property: productDetail.property,
-      quantity: productDetail.quantity,
-      productId: product.id
-    };
-    const existingCart = JSON.parse(localStorage.getItem('cartItem')) || [];
+    let quantityDb;
+    const payload = { ...productDetail }
+    payload.nameProduct = product.id;
+    if (productDetail.property != null && productDetail.size != null) {
+      productService.findQuantityByName(payload)
+        .then(res => {
+          if (productDetail.quantity > res.data.data.quantity) {
+            toast.error("Số lượng đơn hàng đã thay đổi,Số lượng không được lớn hơn tồn kho", {
+              position: "top-right",
+              autoClose: 1000
+            }
+            )
+          } else {
+            const cartItem = {
+              orderDetailId: productDetail.id,
+              productName: product.nameProduct,
+              image: product.image,
+              price: product.price,
+              size: productDetail.size,
+              property: productDetail.property,
+              quantity: productDetail.quantity,
+              productId: product.id
+            };
+            const existingCart = JSON.parse(localStorage.getItem('cartItem')) || [];
 
-    const existingItemIndex = existingCart.findIndex(item => (
-      item.orderDetailId === cartItem.orderDetailId &&
-      item.size === cartItem.size &&
-      item.property === cartItem.property
-    ));
+            const existingItemIndex = existingCart.findIndex(item => (
+              item.orderDetailId === cartItem.orderDetailId &&
+              item.size === cartItem.size &&
+              item.property === cartItem.property
+            ));
 
-    if (existingItemIndex !== -1) {
-      const quantityInCart = parseInt(existingCart[existingItemIndex].quantity, 10);
-      const newQuantity = parseInt(cartItem.quantity, 10);
-      existingCart[existingItemIndex].quantity = quantityInCart + newQuantity;
-    } else {
-      existingCart.push(cartItem);
+            if (existingItemIndex !== -1) {
+              const quantityInCart = parseInt(existingCart[existingItemIndex].quantity, 10);
+              const newQuantity = parseInt(cartItem.quantity, 10);
+              existingCart[existingItemIndex].quantity = quantityInCart + newQuantity;
+            } else {
+              existingCart.push(cartItem);
+            }
+            toast.success("Thêm sản phẩm vào giỏ hàng thành công", {
+              position: "top-right",
+              autoClose: 1000
+            })
+            localStorage.setItem('cartItem', JSON.stringify(existingCart));
+          }
+        }
+
+        )
+
     }
-    toast.success("Thêm sản phẩm vào giỏ hàng thành công", {
-      position: "top-right",
-      autoClose: 1000
-    })
-    localStorage.setItem('cartItem', JSON.stringify(existingCart));
+
+    console.log(quantityDb);
+
+
 
   }
 
@@ -292,9 +314,6 @@ const ProductDetail = () => {
               <hr color="brown" noshade="noshade" />
             </CCol>
             <CCol>
-              <CButton style={{ backgroundColor: "black", border: "none", marginRight: "1%" }}>
-                Mua Ngay
-              </CButton>
 
               <CButton
                 style={{ backgroundColor: "#c4996b", border: "none" }}
