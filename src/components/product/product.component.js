@@ -59,7 +59,7 @@ const ProductComponent = () => {
   };
   return (
     <div className="container">
-      <div style={{ marginTop: "80px" }}>
+      <div style={{ marginTop: "100px" }}>
         {/* <CCard style={{backgroundColor:"white"}}>
             <CCardBody> */}
         <CRow >

@@ -4,7 +4,8 @@ import React, { Component, useState } from "react";
 import AuthService from "../../services/auth.service";
 import { CCard, CCardBody, CCardHeader } from "@coreui/react";
 import userService from "../../services/user.service";
-
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -74,22 +75,71 @@ const Register = () => {
       console.log(formData);
       userService.createCustomer(formData)
         .then(res => {
-          console.log(res);
-          alert("Đăng kí thành công");
+          if (res.data.ecode === "420") {
+            toast.error(res.data.edesc, {
+              position: "top-right",
+              autoClose: 1000
+            })
+            return
+          }
+          toast.success("Đăng ký tài khoản thành công", {
+            position: "top-right",
+            autoClose: 1000
+          })
           window.location.href("/login")
         }).catch(err => {
-          alert("Đăng kí thất bại");
+          toast.error("Đăng ký tài khoản thất bại", {
+            position: "top-right",
+            autoClose: 1000
+          })
         })
-
-
     }
   };
 
   return (
     <CCard className="text-center" style={{ width: "600px" }}>
+      <ToastContainer position="top-right"></ToastContainer>
+
       <CCardHeader>Đăng ký</CCardHeader>
       <CCardBody>
         <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <input
+              type="text"
+              className="form-control"
+              name="username"
+              value={formData.username}
+              onChange={handleChange}
+              placeholder="Username"
+            />
+            {errors.username && <div className="text-danger">{errors.username}</div>}
+
+          </div>
+
+          <div className="form-group">
+            <input
+              type="password"
+              className="form-control"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              placeholder="Password"
+            />
+            {errors.password && <div className="text-danger">{errors.password}</div>}
+          </div>
+          <div className="form-group">
+            <input
+              type="password"
+              className="form-control"
+              name="confirmPassword"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              placeholder="Confirm Password"
+            />
+            {errors.confirmPassword && <div className="text-danger">{errors.confirmPassword}</div>}
+          </div>
+
+
           <div className="form-group">
             <input
               type="text"
@@ -125,28 +175,8 @@ const Register = () => {
           </div>
           {errors.fullName && <div className="text-danger">{errors.fullName}</div>}
 
-          <div className="form-group">
-            <input
-              type="password"
-              className="form-control"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              placeholder="Password"
-            />
-            {errors.password && <div className="text-danger">{errors.password}</div>}
-          </div>
-          <div className="form-group">
-            <input
-              type="password"
-              className="form-control"
-              name="confirmPassword"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              placeholder="Confirm Password"
-            />
-            {errors.confirmPassword && <div className="text-danger">{errors.confirmPassword}</div>}
-          </div>
+
+
           <div className="form-group">
             <input
               type="text"
@@ -159,18 +189,7 @@ const Register = () => {
             {errors.phone && <div className="text-danger">{errors.phone}</div>}
           </div>
 
-          <div className="form-group">
-            <input
-              type="text"
-              className="form-control"
-              name="username"
-              value={formData.username}
-              onChange={handleChange}
-              placeholder="Username"
-            />
-            {errors.username && <div className="text-danger">{errors.username}</div>}
 
-          </div>
           <button type="submit" style={{ width: "60%" }} className="btn btn-primary">Đăng ký</button>
         </form>
       </CCardBody>
