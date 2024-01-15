@@ -2,7 +2,7 @@ import axios from 'axios';
 import authHeader from './auth-header';
 const API_URL = 'http://localhost:8080/bill-manager/';
 const API_URL_VNPAY = 'http://localhost:8080/vnpay/';
-
+const API_VOUCHER = "http://localhost:8080/voucher-manager/"
 class OrderDetailSerivce {
 
     headersAdd = {
@@ -34,6 +34,11 @@ class OrderDetailSerivce {
 
     pushVnpay(json){
         return axios.post(API_URL_VNPAY + "url-vnpay", json, { headers: authHeader()});
+
+    }
+
+    checkVoucher(json){
+        return axios.post(API_VOUCHER + "check-voucher", json, { headers: authHeader()});
 
     }
 }

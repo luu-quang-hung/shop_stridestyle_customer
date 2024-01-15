@@ -19,9 +19,14 @@ const OrderCompoment = () => {
     const [district, setDistrict] = useState([])
     const [ward, setWard] = useState([])
     const [toDistrict, setToDistrict] = useState(null)
+    const [toWardId, setToWardId] = useState(null)
     const totalAmount = cartItem.reduce((total, item) => total + (item.quantity * item.price), 0);
     const totalSl = cartItem.reduce((total, item) => total + (item.quantity), 0);
     const [shipping, setShipping] = useState(null)
+    const [giaGiam,setGiaGiam] = useState(0)
+
+    const [enteredVoucherId, setEnteredVoucherId] = useState('');
+
     const [sendForm, setSendForm] = useState({
         name: null,
         email: null,
@@ -31,8 +36,8 @@ const OrderCompoment = () => {
         district: null,
         ward: null,
         note: null,
-        shippingMethod: 'GHN', // Giả sử giao hàng nhanh là phương thức mặc định
-        payment: 0, // Giả sử thanh toán khi giao hàng là phương thức mặc định
+        shippingMethod: 'GHN',
+        payment: 0,
     });
 
     const [formErrors, setFormErrors] = useState({
@@ -128,6 +133,7 @@ const OrderCompoment = () => {
 
     const handleWardChange = (event) => {
         const wardId = event.target.value;
+        setToWardId(wardId);
         const wardName = ward.find((item) => item.WardCode === wardId);
         if (wardName) {
             setSendForm((prevSendForm) => ({
@@ -136,7 +142,7 @@ const OrderCompoment = () => {
             }))
         }
         const jsonShipping = {
-            service_id: 53321,
+            service_id: 53322,
             insurance_value: parseInt(totalAmount),
             coupon: null,
             from_district_id: 3440,
@@ -147,10 +153,11 @@ const OrderCompoment = () => {
             weight: 1,
             width: 1
         }
+        console.log("wardId:", wardId, "district:", toDistrict);
         OrderDetailSerivce.getShipping(jsonShipping)
             .then(res => {
                 setShipping(res.data.data.total)
-                console.log(res.data.data.total);
+                console.log(res.data);
             }).catch(err => {
                 console.log(err);
             })
@@ -201,10 +208,12 @@ const OrderCompoment = () => {
         const jsonOrder = {
             address: sendForm.address + "," + sendForm.province + "," + sendForm.district + "," + sendForm.ward,
             discount: 0,
-            downTotal: totalAmount + shipping,
+            downTotal: totalAmount + shipping - giaGiam,
             total: totalAmount,
             fullName: sendForm.name,
             note: sendForm.note,
+            toDistrictId: parseInt(toDistrict),
+            toWardCode: toWardId.toString(),
             payment: sendForm.payment,
             phoneNumber: sendForm.telephone,
             transportFee: shipping,
@@ -267,7 +276,38 @@ const OrderCompoment = () => {
             })
     };
 
-    console.log(sendForm);
+    const handleVoucherChange = (e) => {
+        setEnteredVoucherId(e.target.value);
+    };
+
+    const appplyVoucher = () => {
+        const json = {
+            id: enteredVoucherId,
+            total: totalAmount + shipping
+        }
+        order_detailService.checkVoucher(json)
+            .then(res => {
+                console.log(res);
+                if(res.data.ecode === "420"){
+                    toast.error(res.data.edesc, {
+                        position: "top-right",
+                        autoClose: 1000
+                    })
+                    return;
+                }
+                toast.success("Sử dụng voucher thành công", {
+                    position: "top-right",
+                    autoClose: 1000
+                })
+                setGiaGiam(res.data.data.amount)
+            }).catch(err => {
+                console.log(err);
+                toast.error("Voucher thất bại hoặc không tồn tại", {
+                    position: "top-right",
+                    autoClose: 1000
+                })
+            })
+    }
     return (
         <CContainer style={{ marginTop: "100px", marginBottom: "100px" }}>
             <ToastContainer position="top-right"></ToastContainer>
@@ -436,9 +476,7 @@ const OrderCompoment = () => {
                         />
                         <div className="cardPayment">
                             <CRow>
-
                                 <CCol md={2}><CCardImage style={{ width: "55px" }} src="https://hstatic.net/0/0/global/design/seller/image/payment/other.svg?v=6" >
-
                                 </CCardImage></CCol>
                                 {/* <CCol md={9}> */}
                                 <span>Chuyển khoản qua ngân hàng (Vpbank : 1233212 - DO BA HIEU) <br />
@@ -487,8 +525,10 @@ const OrderCompoment = () => {
                         <CCol md={12}>
                             <hr color="#e1e1e1" noshade="noshade" />
                             <CInputGroup className="mb-3">
-                                <CFormInput placeholder="Mã giảm giá" />
-                                <CButton type="button" style={{ backgroundColor: "#c4996b", border: "none" }}>Sử dụng</CButton>
+                                <CFormInput placeholder="Mã giảm giá"
+                                    value={enteredVoucherId}
+                                    onChange={handleVoucherChange} />
+                                <CButton type="button" style={{ backgroundColor: "#c4996b", border: "none" }} onClick={appplyVoucher}>Sử dụng</CButton>
                             </CInputGroup>
                         </CCol>
                         <CCol md={12}>
@@ -496,13 +536,15 @@ const OrderCompoment = () => {
                             <CRow>
                                 <CCol md={6}>Tạm tính</CCol>
                                 <CCol md={6} style={{ textAlign: "end" }}>{formatter.formatVND(totalAmount)}</CCol>
+                                <CCol md={6}>Giảm giá</CCol>
+                                <CCol md={6} style={{ textAlign: "end" }}>{giaGiam ? formatter.formatVND(giaGiam) : "---"}</CCol>
                                 <CCol md={6}>Phí vận chuyển</CCol>
                                 <CCol md={6} style={{ textAlign: "end" }}>{shipping ? formatter.formatVND(shipping) : "---"}</CCol>
                             </CRow>
                             <hr color="#e1e1e1" noshade="noshade" />
                             <CRow>
                                 <CCol md={6}>Tổng cộng</CCol>
-                                <CCol md={6} style={{ textAlign: "end" }}>{formatter.formatVND(totalAmount + shipping)}</CCol>
+                                <CCol md={6} style={{ textAlign: "end" }}>{formatter.formatVND(totalAmount + shipping - giaGiam)}</CCol>
                             </CRow>
                         </CCol>
 

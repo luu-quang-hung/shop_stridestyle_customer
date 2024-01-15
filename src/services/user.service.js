@@ -19,6 +19,11 @@ class UserService {
   createCustomer(json) {
     return axios.post(API_URL_CUSTOMER + '/account-manager/save-customer',json, { headers: authHeader() });
   }
+
+  updateCustomer(json){
+    return axios.post(API_URL_CUSTOMER+ '/customer-manager/update',json,{headers: authHeader() });
+  }
+
 }
 
 export default new UserService();
