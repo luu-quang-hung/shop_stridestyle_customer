@@ -12,13 +12,18 @@ const ProductDetail = () => {
 
   const [product, setProduct] = useState([]);
   const [productDetail, setProductDetail] = useState({
+    nameProduct: null,
     size: null,
     property: null,
     quantity: 1
   });
+  const [quantityProduct, setQuantityProduct] = useState(0)
+  const [size, setSize] = useState([]);
+  const [property, setProperty] = useState([]);
   useEffect(() => {
     getProducId();
-    window.scroll(0,0)
+    getProperty();
+    window.scroll(0, 0)
 
   }, []);
 
@@ -32,6 +37,30 @@ const ProductDetail = () => {
       })
 
   };
+
+  const getProperty = () => {
+    const jsonPage = {
+      page: 0,
+      size: 1000
+    }
+    productService.findAllSize(jsonPage)
+      .then(res => {
+        setSize(res.data.content)
+      })
+      .catch(error => {
+        console.log("Error load data Trademark", error);
+      })
+
+    productService.findAllProperty(jsonPage)
+      .then(res => {
+        setProperty(res.data.content)
+
+      })
+      .catch(error => {
+        console.log("Error load data Trademark", error);
+      })
+  }
+
 
   const handleInputChange = (event) => {
     const value = event.target.value;
@@ -49,51 +78,147 @@ const ProductDetail = () => {
   };
 
   const handleSizeClick = (size) => {
+
     setProductDetail(prevState => ({
       ...prevState,
       size: size
     }));
+    const payload = { ...productDetail }
+    payload.size = size;
+    payload.nameProduct = product.id;
+    if (productDetail.property != null && productDetail.size != null) {
+      productService.findQuantityByName(payload)
+        .then(res => {
+          console.log(res);
+          if (res.data.data === null) {
+            setQuantityProduct(0)
+          } else {
+            setQuantityProduct(res.data.data.quantity)
+
+          }
+        }).catch(err => {
+          console.log(err);
+        })
+    } else {
+      setQuantityProduct(0)
+
+    }
   };
 
   const handlePropertyClick = (property) => {
+
     setProductDetail(prevState => ({
       ...prevState,
-      property: property
+      property: property.name
     }));
+
+    const payload = { ...productDetail }
+    payload.property = property.name;
+    payload.nameProduct = product.id;
+    if (productDetail.property != null && productDetail.size != null) {
+      productService.findQuantityByName(payload)
+        .then(res => {
+          console.log(res);
+          if (res.data.data === null) {
+            setQuantityProduct(0)
+          } else {
+            setQuantityProduct(res.data.data.quantity)
+          }
+        }).catch(err => {
+          console.log(err);
+        })
+    } else {
+      setQuantityProduct(0)
+
+    }
+
   };
 
   const addProductCard = () => {
-    const cartItem = {
-      productId: product.id,
-      productName: product.nameProduct,
-      image: product.image,
-      price: product.price,
-      size: productDetail.size,
-      property: productDetail.property,
-      quantity: productDetail.quantity,
-    };
-    const existingCart = JSON.parse(localStorage.getItem('cartItem')) || [];
-
-    const existingItemIndex = existingCart.findIndex(item => (
-      item.productId === cartItem.productId &&
-      item.size === cartItem.size &&
-      item.property === cartItem.property
-    ));
-
-    if (existingItemIndex !== -1) {
-      const quantityInCart = parseInt(existingCart[existingItemIndex].quantity, 10);
-      const newQuantity = parseInt(cartItem.quantity, 10);
-      existingCart[existingItemIndex].quantity = quantityInCart + newQuantity;
-    } else {
-      existingCart.push(cartItem);
+    if (productDetail.property === null) {
+      toast.error("Vui lòng chọn màu sắc", {
+        position: "top-right",
+        autoClose: 1000
+      })
+      return;
     }
-    toast.success("Thêm sản phẩm vào giỏ hàng thành công", {
-      position: "top-right",
-      autoClose: 1000
-    })
-    localStorage.setItem('cartItem', JSON.stringify(existingCart));
+    if (productDetail.size === null) {
+      toast.error("Vui lòng chọn kích thước", {
+        position: "top-right",
+        autoClose: 1000
+      })
+      return
+    }
+    if (productDetail.quantity < 1 || productDetail.quantity === null) {
+      toast.error("Số lượng không được để trống", {
+        position: "top-right",
+        autoClose: 1000
+      })
+      return;
+    }
+    if (productDetail.quantity > quantityProduct) {
+      toast.error("Số lượng không được lớn hơn tồn kho", {
+        position: "top-right",
+        autoClose: 1000
+      })
+      return;
+    }
+    let quantityDb;
+    const payload = { ...productDetail }
+    payload.nameProduct = product.id;
+    if (productDetail.property != null && productDetail.size != null) {
+      productService.findQuantityByName(payload)
+        .then(res => {
+          if (productDetail.quantity > res.data.data.quantity) {
+            toast.error("Số lượng đơn hàng đã thay đổi,Số lượng không được lớn hơn tồn kho", {
+              position: "top-right",
+              autoClose: 1000
+            }
+            )
+          } else {
+            const cartItem = {
+              orderDetailId: productDetail.id,
+              productName: product.nameProduct,
+              image: product.image,
+              price: product.price,
+              size: productDetail.size,
+              property: productDetail.property,
+              quantity: productDetail.quantity,
+              productId: product.id
+            };
+            const existingCart = JSON.parse(localStorage.getItem('cartItem')) || [];
+
+            const existingItemIndex = existingCart.findIndex(item => (
+              item.orderDetailId === cartItem.orderDetailId &&
+              item.size === cartItem.size &&
+              item.property === cartItem.property
+            ));
+
+            if (existingItemIndex !== -1) {
+              const quantityInCart = parseInt(existingCart[existingItemIndex].quantity, 10);
+              const newQuantity = parseInt(cartItem.quantity, 10);
+              existingCart[existingItemIndex].quantity = quantityInCart + newQuantity;
+            } else {
+              existingCart.push(cartItem);
+            }
+            toast.success("Thêm sản phẩm vào giỏ hàng thành công", {
+              position: "top-right",
+              autoClose: 1000
+            })
+            localStorage.setItem('cartItem', JSON.stringify(existingCart));
+          }
+        }
+
+        )
+
+    }
+
+    console.log(quantityDb);
+
+
 
   }
+
   return (
     <div className="p-5 container">
       <ToastContainer position="top-right"></ToastContainer>
@@ -101,7 +226,7 @@ const ProductDetail = () => {
         <CCol md={6}>
           <CImage
             fluid
-            src={product.image}
+            src={product.image || ""}
           />
         </CCol>
 
@@ -128,17 +253,17 @@ const ProductDetail = () => {
             </CCol>
             <CCol md={12} className="horizontal-row">
               <div className="horizontal-row">
-                {product.productDetailEntities && product.productDetailEntities.length > 0 && (
-                  product.productDetailEntities.map((productDetailMap, index) => (
+                {
+                  property.map((productDetailMap, index) => (
                     <div
                       key={index}
-                      className={`property-item ${productDetail.property === productDetailMap.idProperty.name ? 'selected' : ''}`}
-                      onClick={() => handlePropertyClick(productDetailMap.idProperty.name)}
+                      className={`property-item ${productDetail.property === productDetailMap.name ? 'selected' : ''}`}
+                      onClick={() => handlePropertyClick(productDetailMap)}
                     >
-                      {productDetailMap.idProperty.name}
+                      {productDetailMap.name}
                     </div>
-                  ))
-                )}
+                  )
+                  )}
               </div>
             </CCol>
 
@@ -147,21 +272,24 @@ const ProductDetail = () => {
             </CCol>
             <CCol md={12}>
               <div className="horizontal-row">
-                {product.productDetailEntities && product.productDetailEntities.length > 0 && (
-                  product.productDetailEntities.map((productDetailMap, index) => (
+                {
+                  size.map((productDetailMap, index) => (
                     <div
                       key={index}
-                      className={`size-item ${productDetail.size === productDetailMap.idSize.name ? 'selected' : ''}`}
-                      onClick={() => handleSizeClick(productDetailMap.idSize.name)}
+                      className={`size-item ${productDetail.size === productDetailMap.name ? 'selected' : ''}`}
+                      onClick={() => handleSizeClick(productDetailMap.name)}
                     >
-                      {productDetailMap.idSize.name}
+                      {productDetailMap.name}
                     </div>
-                  ))
-                )}
+                  )
+                  )}
               </div>
             </CCol>
-            <CCol md={12}>
+            <CCol md={2}>
               <CFormLabel>Số lượng: </CFormLabel>
+            </CCol>
+            <CCol md={10}>
+              <CFormLabel>Tồn Kho: </CFormLabel>
             </CCol>
             <CCol md={2}>
               <CFormInput
@@ -173,13 +301,19 @@ const ProductDetail = () => {
                 min={1}
               ></CFormInput>
             </CCol>
+            <CCol md={2}>
+              <CFormInput
+                type="number"
+                id="quantity"
+                value={quantityProduct}
+                readOnly
+                disabled
+              ></CFormInput>
+            </CCol>
             <CCol md={12}>
               <hr color="brown" noshade="noshade" />
             </CCol>
             <CCol>
-              <CButton style={{ backgroundColor: "black", border: "none", marginRight: "1%" }}>
-                Mua Ngay
-              </CButton>
 
               <CButton
                 style={{ backgroundColor: "#c4996b", border: "none" }}

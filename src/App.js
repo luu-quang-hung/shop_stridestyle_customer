@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { Routes, Route, Link } from "react-router-dom";
+import { Routes, Route, Link, useNavigate } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "./App.css";
-
+import userService from "./services/user.service";
 import AuthService from "./services/auth.service";
 import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
@@ -10,7 +10,7 @@ import Navbar from 'react-bootstrap/Navbar';
 import Login from "./components/login/login.component";
 import Register from "./components/login/register.component";
 import Home from "./components/home.component";
-import Profile from "./components/login/profile.component";
+import Profile from "./components/login/ProfileCustomerCompoment";
 import Product from "./components/product/product.component";
 import ShoppingCart from "./components/cart/shopping_cart.component";
 import ProductDetail from "./components/product/ProductDetailComponent";
@@ -19,53 +19,55 @@ import OrderCustomerComponent from "./components/order-customer/OrderCustomerCom
 import ContactComponent from "./components/contact/ContactComponent";
 import IntroduceComponent from "./components/introduce/IntroduceComponent";
 import '../node_modules/bootstrap/dist/css/bootstrap.min.css';
+import OrderDone from "./components/order/order-done";
 import { BsFillCartFill, BsPersonCircle, BsFacebook, BsTwitter, BsTelegram, BsInstagram } from "react-icons/bs";
 import { Dropdown } from "react-bootstrap";
+import { CImage } from "@coreui/react";
 // import AuthVerify from "./common/auth-verify";
+const cartItem = JSON.parse(localStorage.getItem('cartItem')) || [];
 
 const App = () => {
+  const navigate = useNavigate();
+
   const [currentUser, setCurrentUser] = useState(undefined);
   const customer = JSON.parse(localStorage.getItem('user'));
-  const [cartItem, setCartItem] = useState([]);
+  const [indexCart, setIndexCart] = useState(cartItem);
 
   useEffect(() => {
     const user = AuthService.getCurrentUser();
     if (user) {
-      setCurrentUser(user.roles.includes("ROLE_ADMIN"));
+      setCurrentUser(user.roles.includes("ROLE_USER"));
     }
 
-    const logoutListener = () => {
-      logOut();
-    };
-    const handleStorageChange = (event) => {
-      if (event.key === 'cartItem') {
-        const updatedCartItem = JSON.parse(event.newValue) || [];
-        setCartItem(updatedCartItem);
-      }
-    };
-    const storedCartItem = JSON.parse(localStorage.getItem('cartItem')) || [];
-    setCartItem(storedCartItem);
+   if (customer) {
+    getCustomer();
+   }
+ 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [indexCart]);
 
-    window.addEventListener('storage', handleStorageChange);
-
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-    };
-
-  }, [JSON.parse(localStorage.getItem('cartItem')).length]);
-
-
+  console.log('====================================');
+  console.log(indexCart);
+  console.log('====================================');
   const logOut = () => {
     AuthService.logout();
     setCurrentUser(undefined);
   };
+  const getCustomer = () => {
+    userService.getCustomerByIdUser(customer.id)
+      .then(res => {
+        localStorage.setItem("customer", JSON.stringify(res.data.data));
+      }).catch(err => {
+        console.log(err);
+      })
+  }
 
   return (
     <div >
       <div id="header">
         <Navbar bg="light" expand="lg">
           <Container>
-            <Navbar.Brand href="/">Logo ne</Navbar.Brand>
+            <Navbar.Brand href="/"><CImage src="https://i.imgur.com/0J7xZEN.png" width={"120px"}></CImage></Navbar.Brand>
             <Navbar.Toggle aria-controls="basic-navbar-nav" />
             <Navbar.Collapse id="basic-navbar-nav">
               <Nav className="me-auto">
@@ -78,7 +80,7 @@ const App = () => {
                     <Nav.Link href="/contact">
                       <a href="/shopping-cart" >
                         <BsFillCartFill className="custom-cart-icon" />
-                        <div className="custom-badge">{cartItem.length}</div>
+                        <div className="custom-badge">{indexCart.length || 0}</div>
                       </a>
                     </Nav.Link>
                     <Dropdown>
@@ -92,7 +94,7 @@ const App = () => {
                         </Dropdown.Item>
                         <Dropdown.Item eventKey="2" href="/order-customer">Quản lý đơn hàng</Dropdown.Item>
                         <Dropdown.Divider />
-                        <Dropdown.Item eventKey="3" href="/login">
+                        <Dropdown.Item eventKey="3" onClick={logOut} href="/login">
                           Đăng xuất
                         </Dropdown.Item>
                       </Dropdown.Menu>
@@ -103,10 +105,14 @@ const App = () => {
                   <div className="navbar-nav ml-auto">
                     <li className="nav-item">
                       <Link to={"/login"} className="nav-link">
-                        <i className="fas fa-sign-in-alt"></i> Login
+                        <i className="fas fa-sign-in-alt"></i> Đăng nhập
                       </Link>
                     </li>
-
+                    <li className="nav-item">
+                      <Link to={"/register"} className="nav-link">
+                        <i className="fas fa-sign-in-alt"></i> Đăng ký
+                      </Link>
+                    </li>
 
                   </div>
                 )}
@@ -130,6 +136,7 @@ const App = () => {
           <Route path="/introduce" element={<IntroduceComponent />} />
           <Route path="/contact" element={<ContactComponent />} />
           <Route path="/order-customer" element={<OrderCustomerComponent />} />
+          <Route path="/checkout-done" element={<OrderDone />} />
 
         </Routes>
       </div>
@@ -160,7 +167,7 @@ const App = () => {
               </div>
               <div class="col item social"><BsFacebook></BsFacebook>   <BsTelegram />   <BsInstagram />  <BsTwitter /> </div>
             </div>
-            <p class="copyright">Company Name © 2018</p>
+            <p class="copyright">Dự án tốt nghiệp © 2023</p>
           </div>
         </footer>
       </div>

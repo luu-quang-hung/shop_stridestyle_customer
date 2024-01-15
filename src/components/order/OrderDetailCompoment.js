@@ -4,7 +4,14 @@ import { Form } from "react-bootstrap";
 import "../css/shopping_cart.css"
 import OrderDetailSerivce from "../../services/order_detail.service";
 import CurrencyFormatter from "../common/CurrencyFormatter";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { useNavigate } from "react-router-dom";
+import productService from "../../services/product.service";
+import order_detailService from "../../services/order_detail.service";
 const OrderCompoment = () => {
+
+    const navigate = new useNavigate();
     const formatter = new CurrencyFormatter();
 
     const [cartItem, setCartItem] = useState([]);
@@ -12,9 +19,14 @@ const OrderCompoment = () => {
     const [district, setDistrict] = useState([])
     const [ward, setWard] = useState([])
     const [toDistrict, setToDistrict] = useState(null)
+    const [toWardId, setToWardId] = useState(null)
     const totalAmount = cartItem.reduce((total, item) => total + (item.quantity * item.price), 0);
     const totalSl = cartItem.reduce((total, item) => total + (item.quantity), 0);
     const [shipping, setShipping] = useState(null)
+    const [giaGiam,setGiaGiam] = useState(0)
+
+    const [enteredVoucherId, setEnteredVoucherId] = useState('');
+
     const [sendForm, setSendForm] = useState({
         name: null,
         email: null,
@@ -24,8 +36,8 @@ const OrderCompoment = () => {
         district: null,
         ward: null,
         note: null,
-        shippingMethod: 'GHN', // Giả sử giao hàng nhanh là phương thức mặc định
-        paymentMethod: 'COD', // Giả sử thanh toán khi giao hàng là phương thức mặc định
+        shippingMethod: 'GHN',
+        payment: 0,
     });
 
     const [formErrors, setFormErrors] = useState({
@@ -54,16 +66,22 @@ const OrderCompoment = () => {
     }
 
     const handleInputChange = (e) => {
-        const { id, value } = e.target;
-        setSendForm((prevData) => ({
-            ...prevData,
-            [id]: value,
-        }));
+        const { id, value, type } = e.target;
+        if (type === 'radio' && id === 'payment') {
+
+            setSendForm((prevData) => ({
+                ...prevData,
+                payment: parseInt(value, 10),
+            }));
+        } else {
+            setSendForm((prevData) => ({
+                ...prevData,
+                [id]: value,
+            }));
+        }
 
         setFormErrors((prevFormErrors) => ({ ...prevFormErrors, [id]: '' }));
     };
-
-
 
     const handleProvinceChange = (event) => {
         const provincesId = event.target.value;
@@ -115,6 +133,7 @@ const OrderCompoment = () => {
 
     const handleWardChange = (event) => {
         const wardId = event.target.value;
+        setToWardId(wardId);
         const wardName = ward.find((item) => item.WardCode === wardId);
         if (wardName) {
             setSendForm((prevSendForm) => ({
@@ -123,30 +142,31 @@ const OrderCompoment = () => {
             }))
         }
         const jsonShipping = {
-            service_id: 53321,
+            service_id: 53322,
             insurance_value: parseInt(totalAmount),
             coupon: null,
             from_district_id: 3440,
             to_district_id: parseInt(toDistrict),
             to_ward_code: wardId,
-            height: totalSl * 3,
-            length: totalSl * 3,
-            weight: totalSl * 1,
-            width: totalSl * 3
+            height: 1,
+            length: 1,
+            weight: 1,
+            width: 1
         }
+        console.log("wardId:", wardId, "district:", toDistrict);
         OrderDetailSerivce.getShipping(jsonShipping)
             .then(res => {
                 setShipping(res.data.data.total)
-                console.log(res.data.data.total);
+                console.log(res.data);
             }).catch(err => {
                 console.log(err);
             })
 
         setFormErrors((prevFormErrors) => ({ ...prevFormErrors, ward: '' }));
-
     };
 
     const handleSubmit = () => {
+
         const errors = {};
         let regEmail = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
         var phoneRegex = /^(0[35789]\d{8})$/;
@@ -159,7 +179,7 @@ const OrderCompoment = () => {
         if (sendForm.telephone === '' || sendForm.telephone === null) {
             errors.telephone = 'Vui lòng nhập Số điện thoại';
         }
-     
+
         if (sendForm.address === '' || sendForm.address === null) {
             errors.address = 'Vui lòng nhập Địa chỉ';
         }
@@ -188,22 +208,110 @@ const OrderCompoment = () => {
         const jsonOrder = {
             address: sendForm.address + "," + sendForm.province + "," + sendForm.district + "," + sendForm.ward,
             discount: 0,
-            downTotal: totalAmount + shipping,
+            downTotal: totalAmount + shipping - giaGiam,
             total: totalAmount,
             fullName: sendForm.name,
             note: sendForm.note,
-            payment: sendForm.paymentMethod,
-            phone_number: sendForm.telephone,
-            transport_fee: shipping,
-            voucher_id: 0,
-            order: cartItem
+            toDistrictId: parseInt(toDistrict),
+            toWardCode: toWardId.toString(),
+            payment: sendForm.payment,
+            phoneNumber: sendForm.telephone,
+            transportFee: shipping,
+            voucherId: 0,
+            orderDetailRequests: cartItem,
+            idCustomer: JSON.parse(localStorage.getItem('user')).id,
+            status: 0,
         }
-        console.log(jsonOrder);
+
+        OrderDetailSerivce.createBill(jsonOrder)
+            .then(res => {
+                console.log(res.data.ecode);
+                if (res.data.ecode === "420") {
+                    toast.error(res.data.edesc, {
+                        position: "top-right",
+                        autoClose: 1000
+                    })
+                    return
+                }
+                setTimeout(() =>
+                    navigate(`/checkout-done`)
+                    , 3000)
+                if (jsonOrder.payment !== 1) {
+                    toast.success("Đặt hàng thành công", {
+                        position: "top-right",
+                        autoClose: 1000
+                    })
+                }
+                if (jsonOrder.payment === 1) {
+                    const jsonVnpay = {
+                        diaChiGiaoHang: jsonOrder.address,
+                        emailNguoiNhann: sendForm.email,
+                        ghiChu: sendForm.note,
+                        hoaDonId: (Math.floor(Math.random() * 10000) + 1),
+                        idCustomer: jsonOrder.idCustomer,
+                        nameGiamGia: "0",
+                        nguoiNhan: jsonOrder.fullName,
+                        orderInfor: "Mua qua vn pay",
+                        sdtNguoiNhan: jsonOrder.phoneNumber,
+                        tienGiamGia: jsonOrder.discount,
+                        tienShipHD: jsonOrder.transportFee,
+                        total: jsonOrder.downTotal
+                    }
+                    order_detailService.pushVnpay(jsonVnpay)
+                        .then(res => {
+                            console.log(res);
+                            window.location.assign(res.data.data);
+
+                        }).catch(errors => {
+                            console.log(errors);
+                        })
+                }
+                localStorage.removeItem("cartItem")
+            }).catch(err => {
+                toast.success("Đặt hàng thất bại", {
+                    position: "top-right",
+                    autoClose: 1000
+                })
+                console.log(err);
+            })
     };
+
+    const handleVoucherChange = (e) => {
+        setEnteredVoucherId(e.target.value);
+    };
+
+    const appplyVoucher = () => {
+        const json = {
+            id: enteredVoucherId,
+            total: totalAmount + shipping
+        }
+        order_detailService.checkVoucher(json)
+            .then(res => {
+                console.log(res);
+                if(res.data.ecode === "420"){
+                    toast.error(res.data.edesc, {
+                        position: "top-right",
+                        autoClose: 1000
+                    })
+                    return;
+                }
+                toast.success("Sử dụng voucher thành công", {
+                    position: "top-right",
+                    autoClose: 1000
+                })
+                setGiaGiam(res.data.data.amount)
+            }).catch(err => {
+                console.log(err);
+                toast.error("Voucher thất bại hoặc không tồn tại", {
+                    position: "top-right",
+                    autoClose: 1000
+                })
+            })
+    }
     return (
         <CContainer style={{ marginTop: "100px", marginBottom: "100px" }}>
+            <ToastContainer position="top-right"></ToastContainer>
             <CRow>
-
                 <CCol md={1}></CCol>
                 <CCol md={6}>
                     <h4>Thông tin giao hàng</h4>
@@ -227,7 +335,6 @@ const OrderCompoment = () => {
                                 onChange={handleInputChange}
                             />
                             <div className="text-danger">{formErrors.email}</div>
-
                         </CCol>
                         <CCol md={4}>
                             <CFormInput
@@ -307,32 +414,76 @@ const OrderCompoment = () => {
                     <CCol md={12} className="mb-3" >
                         <CFormCheck className="radioPayment" type="radio" name="radioVc" value="GHN" defaultChecked />
                         <div className="cardPayment">
-                            <CCardImage style={{ width: "55px" }} src="https://play-lh.googleusercontent.com/oPEbg7Lgj98vzT9qmq9sOiY-t6IR_frAY-ON7KHOBMqQpt_qxDQmom8lCWlNM1cJIIZ2" />
-                            <span>Giao hàng nhanh toàn quốc()</span>
+                            <CRow>
+                                <CCol md={2}>
+                                    <CCardImage style={{ width: "55px" }} src="https://play-lh.googleusercontent.com/oPEbg7Lgj98vzT9qmq9sOiY-t6IR_frAY-ON7KHOBMqQpt_qxDQmom8lCWlNM1cJIIZ2" />
+                                </CCol>
+                                <span>Giao hàng nhanh toàn quốc()</span>
+                            </CRow>
                         </div>
 
                     </CCol>
                     <h4>Phương thức thanh toán</h4>
-                    <CCol md={12} className="mb-3" >
-                        <CFormCheck className="radioPayment" type="radio" name="payment" value="COD" defaultChecked />
+                    <CCol md={12} className="mb-3">
+                        <CFormCheck
+                            className="radioPayment"
+                            type="radio"
+                            name="payment"
+                            id="payment"
+                            value="0"
+                            checked={sendForm.payment === 0}
+                            onChange={handleInputChange}
+                        />
                         <div className="cardPayment">
-                            <CCardImage style={{ width: "55px" }} src="https://hstatic.net/0/0/global/design/seller/image/payment/cod.svg?v=6" />
-                            <span>Thanh toán khi giao hàng (COD)</span>
-                        </div>
+                            <CRow>
+                                <CCol md={2}>
+                                    <CCardImage style={{ width: "55px" }} src="https://hstatic.net/0/0/global/design/seller/image/payment/cod.svg?v=6" />
+                                </CCol>
+                                <span>Thanh toán khi giao hàng (COD)</span>
 
+                            </CRow>
+                        </div>
                     </CCol>
                     <CCol md={12} className="mb-3">
-                        <CFormCheck className="radioPayment" type="radio" name="payment" value="VNPAY" />
+                        <CFormCheck
+                            className="radioPayment"
+                            type="radio"
+                            name="payment"
+                            id="payment"
+                            value="1"
+                            checked={sendForm.payment === 1}
+                            onChange={handleInputChange}
+                        />
                         <div className="cardPayment">
-                            <CCardImage style={{ width: "55px" }} src="https://vnpay.vn/s1/statics.vnpay.vn/2023/9/06ncktiwd6dc1694418196384.png" />
-                            <span>Cổng VNPAY</span>
+                            <CRow>
+                                <CCol md={2}>
+                                    <CCardImage style={{ width: "55px" }} src="https://vnpay.vn/s1/statics.vnpay.vn/2023/9/06ncktiwd6dc1694418196384.png" />
+                                </CCol>
+                                <span >Cổng VNPAY</span>
+
+                            </CRow>
                         </div>
                     </CCol>
                     <CCol md={12} className=" mb-3">
-                        <CFormCheck className="radioPayment" type="radio" name="payment" value="BANK" />
+                        <CFormCheck
+                            className="radioPayment"
+                            type="radio"
+                            name="payment"
+                            id="payment"
+                            value="2"
+                            checked={sendForm.payment === 2}
+                            onChange={handleInputChange}
+                        />
                         <div className="cardPayment">
-                            <CCardImage style={{ width: "55px" }} src="https://hstatic.net/0/0/global/design/seller/image/payment/other.svg?v=6" />
-                            <span>Chuyển khoản qua ngân hàng</span>
+                            <CRow>
+                                <CCol md={2}><CCardImage style={{ width: "55px" }} src="https://hstatic.net/0/0/global/design/seller/image/payment/other.svg?v=6" >
+                                </CCardImage></CCol>
+                                {/* <CCol md={9}> */}
+                                <span>Chuyển khoản qua ngân hàng (Vpbank : 1233212 - DO BA HIEU) <br />
+                                    <span style={{ color: "red" }}>  Nội dung: Chuyen Khoan + [SDT] + [TEN KHACH HANG]</span>
+                                </span>
+                                {/* </CCol> */}
+                            </CRow>
                         </div>
                     </CCol>
                     <CRow>
@@ -374,8 +525,10 @@ const OrderCompoment = () => {
                         <CCol md={12}>
                             <hr color="#e1e1e1" noshade="noshade" />
                             <CInputGroup className="mb-3">
-                                <CFormInput placeholder="Mã giảm giá" />
-                                <CButton type="button" style={{ backgroundColor: "#c4996b", border: "none" }}>Sử dụng</CButton>
+                                <CFormInput placeholder="Mã giảm giá"
+                                    value={enteredVoucherId}
+                                    onChange={handleVoucherChange} />
+                                <CButton type="button" style={{ backgroundColor: "#c4996b", border: "none" }} onClick={appplyVoucher}>Sử dụng</CButton>
                             </CInputGroup>
                         </CCol>
                         <CCol md={12}>
@@ -383,13 +536,15 @@ const OrderCompoment = () => {
                             <CRow>
                                 <CCol md={6}>Tạm tính</CCol>
                                 <CCol md={6} style={{ textAlign: "end" }}>{formatter.formatVND(totalAmount)}</CCol>
+                                <CCol md={6}>Giảm giá</CCol>
+                                <CCol md={6} style={{ textAlign: "end" }}>{giaGiam ? formatter.formatVND(giaGiam) : "---"}</CCol>
                                 <CCol md={6}>Phí vận chuyển</CCol>
                                 <CCol md={6} style={{ textAlign: "end" }}>{shipping ? formatter.formatVND(shipping) : "---"}</CCol>
                             </CRow>
                             <hr color="#e1e1e1" noshade="noshade" />
                             <CRow>
                                 <CCol md={6}>Tổng cộng</CCol>
-                                <CCol md={6} style={{ textAlign: "end" }}>{formatter.formatVND(totalAmount + shipping)}</CCol>
+                                <CCol md={6} style={{ textAlign: "end" }}>{formatter.formatVND(totalAmount + shipping - giaGiam)}</CCol>
                             </CRow>
                         </CCol>
 
@@ -397,7 +552,6 @@ const OrderCompoment = () => {
 
                 </CCol>
                 <CCol md={1}></CCol>
-
             </CRow>
         </CContainer>
     );

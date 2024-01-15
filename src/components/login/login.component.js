@@ -6,12 +6,13 @@ import CheckButton from "react-validation/build/button";
 import AuthService from "../../services/auth.service";
 
 import { withRouter } from '../../common/with-router';
+import { CButton } from "@coreui/react";
 
 const required = value => {
   if (!value) {
     return (
       <div className="alert alert-danger" role="alert">
-        This field is required!
+        Không được để trống
       </div>
     );
   }
@@ -56,17 +57,23 @@ class Login extends Component {
 
     if (this.checkBtn.context._errors.length === 0) {
       AuthService.login(this.state.username, this.state.password).then(
-        () => {
-          this.props.router.navigate("/");
-          window.location.reload();
+        (response) => {
+          if (response.roles.includes("ROLE_ADMIN")|| response.roles.includes("ROLE_GUEST") ){
+            // Cập nhật trạng thái với thông báo lỗi
+            this.setState({
+                loading: false,
+                message: "Tài khoản mật khẩu không chính xác"
+            });
+        } else {
+            // Nếu không phải admin, tiếp tục với việc chuyển hướng
+            this.props.router.navigate("/");
+            window.location.reload();
+        }
         },
+        
         error => {
-          const resMessage =
-            (error.response &&
-              error.response.data &&
-              error.response.data.message) ||
-            error.message ||
-            error.toString();
+        
+          const resMessage = "Tài khoản mật khẩu không chính xác"
 
           this.setState({
             loading: false,
@@ -83,8 +90,8 @@ class Login extends Component {
 
   render() {
     return (
-      <div className="col-md-12"  style={{ marginTop: "110px", marginBottom: "185px" }}>
-        <div className="card card-container">
+      <div className="col-md-12"  style={{ marginTop: "90px" ,color:"white"}}>
+        <div className="card card-container" style={{backgroundColor:"#c4996b"}}>
           <img
             src="//ssl.gstatic.com/accounts/ui/avatar_2x.png"
             alt="profile-img"
@@ -98,7 +105,7 @@ class Login extends Component {
             }}
           >
             <div className="form-group">
-              <label htmlFor="username">Username</label>
+              <label htmlFor="username">Tài khoản</label>
               <Input
                 type="text"
                 className="form-control"
@@ -110,7 +117,7 @@ class Login extends Component {
             </div>
 
             <div className="form-group">
-              <label htmlFor="password">Password</label>
+              <label htmlFor="password">Mật khẩu</label>
               <Input
                 type="password"
                 className="form-control"
@@ -120,19 +127,6 @@ class Login extends Component {
                 validations={[required]}
               />
             </div>
-
-            <div className="form-group">
-              <button
-                className="btn btn-primary btn-block"
-                disabled={this.state.loading}
-              >
-                {this.state.loading && (
-                  <span className="spinner-border spinner-border-sm"></span>
-                )}
-                <span>Login</span>
-              </button>
-            </div>
-
             {this.state.message && (
               <div className="form-group">
                 <div className="alert alert-danger" role="alert">
@@ -140,6 +134,21 @@ class Login extends Component {
                 </div>
               </div>
             )}
+            <div className="form-group">
+              <CButton
+                color="dark"
+                onClick={this.handleLogin}
+                className="btn btn-primary btn-block"
+                disabled={this.state.loading}
+              >
+                {this.state.loading && (
+                  <span className="spinner-border spinner-border-sm"></span>
+                )}
+                <span>Đăng nhập</span>
+              </CButton>
+            </div>
+
+         
             <CheckButton
               style={{ display: "none" }}
               ref={c => {
