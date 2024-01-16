@@ -142,7 +142,7 @@ const OrderCompoment = () => {
             }))
         }
         const jsonShipping = {
-            service_id: 53322,
+            service_id: 53321,
             insurance_value: parseInt(totalAmount),
             coupon: null,
             from_district_id: 3440,
@@ -219,7 +219,7 @@ const OrderCompoment = () => {
             transportFee: shipping,
             voucherId: 0,
             orderDetailRequests: cartItem,
-            idCustomer: JSON.parse(localStorage.getItem('user')).id,
+            idCustomer: JSON.parse(localStorage.getItem('customer')).id,
             status: 0,
         }
 
@@ -299,7 +299,7 @@ const OrderCompoment = () => {
                     position: "top-right",
                     autoClose: 1000
                 })
-                setGiaGiam(res.data.data.amount)
+                setGiaGiam(res.data.data.discount)
             }).catch(err => {
                 console.log(err);
                 toast.error("Voucher thất bại hoặc không tồn tại", {
