@@ -1,5 +1,5 @@
 import React, { Component, useState, useEffect } from "react";
-import { Container, Row, Col, Button, Modal, Card } from 'react-bootstrap';
+import { Container, Row, Col, Button, Modal, Card, Form } from 'react-bootstrap';
 import "../css/home.css"
 
 import productService from "../../services/product.service";
@@ -13,13 +13,19 @@ const ProductComponent = () => {
   const [productInfo, setProductInfo] = useState([]);
   const formatter = new CurrencyFormatter();
   const [priceRange, setPriceRange] = useState([100000, 10000000]); // Khoảng giá tiền mặc định
+  const [trademarks, setTrademark] = useState([]);
+  const [size, setSize] = useState([]);
+  const [property, setProperty] = useState([]);
 
   const [productSearch, setProductSearch] = useState({
     page: 0,
     size: 12,
     nameProduct: null,
     minPrice: null,
-    maxPrice: null
+    maxPrice: null,
+    categoryName: null,
+    idColor: null,
+    idSize: null
   });
 
   useEffect(() => {
@@ -33,6 +39,33 @@ const ProductComponent = () => {
       })
       .catch(err => {
         console.error('Error fetching products:', err);
+      })
+
+    const jsonPage = {
+      page: 0,
+      size: 1000
+    }
+    productService.findCategory()
+      .then(res => {
+        setTrademark(res.data)
+      })
+      .catch(error => {
+        console.log("Error load data Trademark", error);
+      })
+
+    productService.findAllSize(jsonPage)
+      .then(res => {
+        console.log(res.data.content);
+        setSize(res.data.content)
+      })
+      .catch(error => {
+        console.log("Error load data Trademark", error);
+      })
+    productService.findAllProperty(jsonPage)
+      .then(res => {
+        console.log(res.data.content);
+        setProperty(res.data.content)
+
       })
   }
 
@@ -71,7 +104,7 @@ const ProductComponent = () => {
               onChange={(e) => handleInputChange('nameProduct', e.target.value)}
             />
           </CCol>
-          <CCol md={2} className="mb-3">
+          <CCol md={3} className="mb-3">
             <Slider
               range
               min={100000}
@@ -83,7 +116,55 @@ const ProductComponent = () => {
               Giá từ {formatter.formatVND(priceRange[0])} đến {formatter.formatVND(priceRange[1])}
             </p>
           </CCol>
-          <CCol md={6}>
+          <CCol md={2}>
+            <Form.Group controlId="formTrademark">
+              <Form.Control
+                as="select"
+                name="categoryName"
+                onChange={(e) => handleInputChange('categoryName', e.target.value)}
+
+              >
+                <option value={""}>Chọn danh mục</option>
+                {trademarks.map((item) => (
+                  <option key={item.id} value={item.name}>
+                    {item.nameCategory}
+                  </option>
+                ))}
+
+              </Form.Control>
+            </Form.Group>
+          </CCol>
+          <CCol md={2}>
+            <Form.Control
+              as="select"
+              name="idSize"
+              onChange={(e) => handleInputChange('idSize', e.target.value)}
+            >
+              <option value={""}>Chọn kích thước</option>
+              {size.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.name}
+                </option>
+              ))}
+            </Form.Control>
+
+          </CCol>
+          <CCol md={2}>
+            <Form.Control
+              as="select"
+              name="idColor"
+              onChange={(e) => handleInputChange('idColor', e.target.value)}
+            >
+              <option value={""}>Chọn màu sắc</option>
+              {property.map((item) => (
+                <option key={item.idProperty} value={item.idProperty}>
+                  {item.name}
+                </option>
+              ))}
+
+            </Form.Control>
+          </CCol>
+          <CCol md={1}>
             <CButton type="submit" className="mb-3" onClick={getProductList}>
               Tìm Kiếm
             </CButton>

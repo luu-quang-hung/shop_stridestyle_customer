@@ -23,7 +23,7 @@ const OrderCompoment = () => {
     const totalAmount = cartItem.reduce((total, item) => total + (item.quantity * item.price), 0);
     const totalSl = cartItem.reduce((total, item) => total + (item.quantity), 0);
     const [shipping, setShipping] = useState(null)
-    const [giaGiam,setGiaGiam] = useState(0)
+    const [giaGiam, setGiaGiam] = useState(0)
 
     const [enteredVoucherId, setEnteredVoucherId] = useState('');
 
@@ -109,7 +109,6 @@ const OrderCompoment = () => {
     const handleDistrictChange = (event) => {
         const districtId = event.target.value;
         const districtName = district.find((item) => item.DistrictID === parseInt(districtId));
-        console.log(districtName);
 
         if (districtName) {
             setSendForm((prevSendForm) => ({
@@ -130,6 +129,8 @@ const OrderCompoment = () => {
         setFormErrors((prevFormErrors) => ({ ...prevFormErrors, district: '' }));
 
     };
+
+
 
     const handleWardChange = (event) => {
         const wardId = event.target.value;
@@ -153,7 +154,6 @@ const OrderCompoment = () => {
             weight: 1,
             width: 1
         }
-        console.log("wardId:", wardId, "district:", toDistrict);
         OrderDetailSerivce.getShipping(jsonShipping)
             .then(res => {
                 setShipping(res.data.data.total)
@@ -163,6 +163,14 @@ const OrderCompoment = () => {
             })
 
         setFormErrors((prevFormErrors) => ({ ...prevFormErrors, ward: '' }));
+    };
+
+    const calculateDiscountedTotal = () => {
+        const discountAmount = totalAmount * (giaGiam / 100);
+        const discountedTotal = totalAmount - discountAmount;
+        const finalTotal = discountedTotal + shipping;
+
+        return finalTotal;
     };
 
     const handleSubmit = () => {
@@ -208,7 +216,7 @@ const OrderCompoment = () => {
         const jsonOrder = {
             address: sendForm.address + "," + sendForm.province + "," + sendForm.district + "," + sendForm.ward,
             discount: 0,
-            downTotal: totalAmount + shipping - giaGiam,
+            downTotal: calculateDiscountedTotal(),
             total: totalAmount,
             fullName: sendForm.name,
             note: sendForm.note,
@@ -288,7 +296,7 @@ const OrderCompoment = () => {
         order_detailService.checkVoucher(json)
             .then(res => {
                 console.log(res);
-                if(res.data.ecode === "420"){
+                if (res.data.ecode === "420") {
                     toast.error(res.data.edesc, {
                         position: "top-right",
                         autoClose: 1000
@@ -308,6 +316,8 @@ const OrderCompoment = () => {
                 })
             })
     }
+
+  
     return (
         <CContainer style={{ marginTop: "100px", marginBottom: "100px" }}>
             <ToastContainer position="top-right"></ToastContainer>
@@ -357,7 +367,7 @@ const OrderCompoment = () => {
                             <div className="text-danger">{formErrors.address}</div>
 
                         </CCol>
-                        <CCol md={4} className="mb-3">
+                        <CCol md={3} className="mb-3">
                             <CFormSelect
                                 className="select_form"
                                 options={[
@@ -371,7 +381,7 @@ const OrderCompoment = () => {
                             />
                             <div className="text-danger">{formErrors.province}</div>
                         </CCol>
-                        <CCol md={4}>
+                        <CCol md={3}>
                             <CFormSelect
                                 className="select_form"
                                 onChange={handleDistrictChange}
@@ -385,7 +395,7 @@ const OrderCompoment = () => {
                             />
                             <div className="text-danger">{formErrors.district}</div>
                         </CCol>
-                        <CCol md={4}>
+                        <CCol md={3}>
                             <CFormSelect
                                 className="select_form"
                                 onChange={handleWardChange}
@@ -399,6 +409,9 @@ const OrderCompoment = () => {
                             />
                             <div className="text-danger">{formErrors.ward}</div>
 
+                        </CCol>
+                        <CCol md={3}>
+                            <CButton width={"100%"} style={{ backgroundColor: "#c4996b", border: "none" }}>Dùng địa chỉ cũ</CButton>
                         </CCol>
                         <CCol md={12} className="mb-3">
                             <CFormTextarea
@@ -536,15 +549,15 @@ const OrderCompoment = () => {
                             <CRow>
                                 <CCol md={6}>Tạm tính</CCol>
                                 <CCol md={6} style={{ textAlign: "end" }}>{formatter.formatVND(totalAmount)}</CCol>
-                                <CCol md={6}>Giảm giá</CCol>
-                                <CCol md={6} style={{ textAlign: "end" }}>{giaGiam ? formatter.formatVND(giaGiam) : "---"}</CCol>
+                                <CCol md={6}>Phần trăm giảm</CCol>
+                                <CCol md={6} style={{ textAlign: "end" }}>{giaGiam ? giaGiam + "%" : "---"}</CCol>
                                 <CCol md={6}>Phí vận chuyển</CCol>
                                 <CCol md={6} style={{ textAlign: "end" }}>{shipping ? formatter.formatVND(shipping) : "---"}</CCol>
                             </CRow>
                             <hr color="#e1e1e1" noshade="noshade" />
                             <CRow>
                                 <CCol md={6}>Tổng cộng</CCol>
-                                <CCol md={6} style={{ textAlign: "end" }}>{formatter.formatVND(totalAmount + shipping - giaGiam)}</CCol>
+                                <CCol md={6} style={{ textAlign: "end" }}>{formatter.formatVND(calculateDiscountedTotal())}</CCol>
                             </CRow>
                         </CCol>
 

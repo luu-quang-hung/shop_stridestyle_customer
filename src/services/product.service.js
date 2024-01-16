@@ -24,6 +24,9 @@ class ProductService {
   findQuantityByName(json) {
     return axios.post(API_URL + 'find-quantity-product-name', json, { headers: authHeader() });
   }
+  findCategory() {
+    return axios.get(API_URL + 'find-id-name-category', { headers: authHeader() });
+  }
 
 }
 
