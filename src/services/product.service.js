@@ -7,7 +7,7 @@ const API_URL_PROPERTY = 'http://localhost:8080/property-manager/';
 class ProductService {
 
   getProduct(json) {
-    return axios.post(API_URL + 'find-all', json, { headers: authHeader() });
+    return axios.post(API_URL + 'find-all-customer', json, { headers: authHeader() });
   }
   getProductByID(idProduct) {
     return axios.get(API_URL + 'find-by-id/' + idProduct, { headers: authHeader() });
