@@ -84,10 +84,17 @@ const ProductComponent = () => {
   console.log(productSearch);
   console.log('====================================');
   const handleInputChange = (field, value) => {
-    const nullValue = value === 'null' ? null : value;
+    let processedValue = value;
+
+    if (field === 'idSize' || field === 'idColor') {
+      // Chuyển đổi giá trị thành số nguyên, sử dụng parseInt.
+      // Bạn có thể thay thế parseInt bằng parseFloat nếu cần số thực.
+      processedValue = value === '' ? null : parseInt(value);
+    }
+
     setProductSearch((prevSearchBill) => ({
       ...prevSearchBill,
-      [field]: nullValue,
+      [field]: processedValue,
     }));
   };
   return (
