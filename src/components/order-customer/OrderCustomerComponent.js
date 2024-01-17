@@ -14,7 +14,7 @@ const OrderCustomerComponent = () => {
 
     const [searchBill, setSearchBill] = useState(
         {
-            id_customer: JSON.parse(localStorage.getItem('user')).id,
+            id_customer: JSON.parse(localStorage.getItem('customer')).id,
             page: 0,
             size: 10,
 
